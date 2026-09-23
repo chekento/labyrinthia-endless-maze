@@ -50,8 +50,10 @@ export class MotionPhysics {
       return { x: 0, y: 0, isRolling: false, intensity: 0 };
     }
 
-    let relativeX = (x - this.calibration.x) * this.tiltSensitivity;
-    let relativeY = (y - this.calibration.y) * this.tiltSensitivity;
+    // Android's accelerometer reports m/s². Normalizing by gravity makes the
+    // response consistent between native Android and browser sensor streams.
+    let relativeX = ((x - this.calibration.x) / 9.81) * this.tiltSensitivity;
+    let relativeY = ((y - this.calibration.y) / 9.81) * this.tiltSensitivity;
     if (Math.abs(relativeX) < this.deadzone) relativeX = 0;
     if (Math.abs(relativeY) < this.deadzone) relativeY = 0;
 
@@ -94,5 +96,12 @@ export class MotionPhysics {
     this.velocity = { x: 0, y: 0 };
     this.calibrated = false;
     this.lastUpdate = typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now();
+  }
+
+  hitWall() {
+    // A board rolls into a wall and loses its momentum, rather than continuing
+    // to request the same move at full speed.
+    this.velocity.x *= 0.22;
+    this.velocity.y *= 0.22;
   }
 }

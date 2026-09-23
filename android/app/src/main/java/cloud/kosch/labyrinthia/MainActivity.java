@@ -58,7 +58,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         settings.setBuiltInZoomControls(false);
         settings.setDisplayZoomControls(false);
         settings.setMediaPlaybackRequiresUserGesture(false);
-        settings.setUserAgentString(settings.getUserAgentString() + " LabyrinthiaAndroid/2.1.1");
+        settings.setUserAgentString(settings.getUserAgentString() + " LabyrinthiaAndroid/2.2.0");
         view.setWebViewClient(new WebViewClientCompat() {
             @Override
             public android.webkit.WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {

@@ -15,9 +15,9 @@
 
 ### An endless procedural maze adventure by KoSch
 
-<a href="./APK-DOWNLOAD.md"><img src="./assets/apk-download-banner.svg" alt="Download the current Labyrinthia APK build v2.1.1" width="920" /></a>
+<a href="./APK-DOWNLOAD.md"><img src="./assets/apk-download-banner.svg" alt="Download the current Labyrinthia APK build v2.2.0" width="920" /></a>
 
-<sub>The banner is versioned to <strong>v2.1.1</strong> and points to one stable APK build page.</sub>
+<sub>The banner is versioned to <strong>v2.2.0</strong> and points to one stable APK build page.</sub>
 
 </div>
 
@@ -26,12 +26,12 @@
 ## Download and play
 
 - **APK build page:** click the banner above or open [`APK-DOWNLOAD.md`](./APK-DOWNLOAD.md). It is the stable destination for the current APK version.
-- **Direct APK:** download the current debug-signed Android build [`Labyrinthia-v2.1.1-debug.apk`](./downloads/Labyrinthia-v2.1.1-debug.apk) for device testing.
+- **Direct APK:** download the current debug-signed Android build [`Labyrinthia-v2.2.0-debug.apk`](./downloads/Labyrinthia-v2.2.0-debug.apk) for device testing.
 - **Download the source:** use GitHub's **Code → Download ZIP** or clone this repository. The repository stays source-first and the Android-ready project lives in [`android/`](./android/).
 - **Browser preview:** serve the repository over HTTP(S), then open `index.html`.
 - **Android Studio:** open the `android/` project and build the debug APK or a signed AAB.
 
-> **APK status:** v2.1.1 is the current Android-ready Pre-Alpha build. The repository includes a debug-signed APK for testing; it is not the final Play Store-signed AAB.
+> **APK status:** v2.2.0 is the current Android-ready Pre-Alpha build. The repository includes a debug-signed APK for testing; it is not the final Play Store-signed AAB.
 
 ## Why the game should stay fun for a long time
 
@@ -137,20 +137,20 @@ The design rules are deliberately strict:
 - reward mastery without interrupting the maze flow;
 - keep the core game local and privacy-friendly.
 
-## Ten GUI / UX upgrades included in v2.1.1
+## Mechanics and GUI upgrades included in v2.2.0
 
-All ten improvements are now implemented in the playable build, not just planned for the front page:
+The newest playable build adds the requested physical and readability pass:
 
-1. **30-second first-run tutorial:** teach swipe, D-pad, key and exit with one tiny guaranteed maze before the endless loop begins.
-2. **Comfort presets:** offer Relaxed, Standard and Focused modes with different timers, hint strength and maze pressure.
-3. **Daily seed card:** add one optional daily challenge with a shareable seed, while keeping the core progression fully offline and local.
-4. **Run recap screen:** show route length, best time, moves, key detour and the next personal target immediately after each escape.
-5. **Input safety layer:** add a short touch lock around buttons, a visible last-input indicator and optional haptics so fast swipes never misfire.
-6. **Accessibility hub:** include high-contrast markers, colour-blind-safe palettes, reduced motion, larger text and a left-handed D-pad layout.
-7. **Camera comfort controls:** let players choose follow strength, minimap zoom and whether objective arrows pulse or stay static.
-8. **Audio language:** add distinct sounds for wall contact, key pickup, exit discovery, rank-up and achievement unlock, with separate music/SFX sliders.
-9. **Achievement chains:** group the 1,000 achievements into readable collections with “next easiest” guidance instead of showing an overwhelming wall of badges.
-10. **Local backup/export:** provide an explicit export/import code for progression so a device change never erases a player’s ranks and achievements.
+1. **Physikalische Sensorsteuerung:** Accelerometer-Werte werden auf Gravitation normiert; stärkere Neigung baut mehr Rollgeschwindigkeit auf.
+2. **Kontinuierliches Wischen:** Eine gehaltene Richtung bewegt mehrere Zellen bis zum Loslassen, Wandkontakt oder Fallloch.
+3. **Faire Fallen:** Ab Level 3 entstehen kleine, später größere/gebündelte Falllöcher. Start→Schlüssel→Ausgang bleibt als sichere Route garantiert.
+4. **Savepoints:** Start und Schlüssel markieren Rücksetzpunkte; ein Fallloch setzt die Kugel dorthin zurück und erhält den Schlüsselstatus.
+5. **Rollende Kugel:** Eased Bewegung, Kugel-Highlight und rotierende Naht machen jeden Schritt physisch lesbar.
+6. **Gestuftes Leveldesign:** Die Schwierigkeit meldet Warm-up, Lochgrößen und Cluster direkt im HUD.
+7. **Minimierbares HUD:** Karte, Steuerung, Aktionen und Zielchips lassen sich einzeln minimieren; der Header kann das Spielfeld maximieren.
+8. **Lesbare Kartenansicht:** Die mobile Spielfeldhöhe ist begrenzt, damit die Umgebungskarte nicht mehr vom Labyrinth überdeckt wird.
+9. **Lokales Audio-Feedback:** Falllöcher haben ein eigenes Warnsignal und Haptik.
+10. **Vorbereitet für Ausbau:** Die sichere Routen-/Hazard-Schicht lässt sich später um verschiebbare Segmente, Schlüsselketten und Türen erweitern.
 
 ## Android build
 
@@ -165,10 +165,10 @@ Open `android/` in Android Studio with an Android SDK installed, or run `./gradl
 
 ## Development status
 
-The current build is **v2.1.1 Android-ready / Pre-Alpha**. The next quality passes should focus on:
+The current build is **v2.2.0 Android-ready / Pre-Alpha**. The next quality passes should focus on:
 
 - device-by-device sensor tuning and accessibility testing;
-- additional maze modifiers and fair challenge variants;
+- movable maze segments, multiple keys and intermediate savepoint doors;
 - device performance profiling on very large levels;
 - signed AAB preparation and Play Store listing assets.
 

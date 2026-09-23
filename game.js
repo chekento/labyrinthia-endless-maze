@@ -3,12 +3,19 @@ import {
   canMove,
   chooseKey,
   createSeed,
+  createDailySeed,
   generateMaze,
-  initMaze
+  applyLevelHazards,
+  getLevelDifficulty,
+  initMaze,
+  solveMaze
 } from './maze-utils.js';
 import { initMotionControls } from './motion-controls.js';
+import { createAudioFeedback } from './audio.js';
 import {
   evaluateAchievements,
+  exportProfile,
+  getAchievementCollections,
   getAchievementProgress,
   getAchievements,
   getAchievementStats,
@@ -16,14 +23,21 @@ import {
   getRank,
   getUnlockedAchievements,
   hapticPulse,
+  importProfile,
   recordKey,
   recordLevelComplete,
   recordMove,
+  recordWallBump,
   resetAllProgress,
   resetRun,
   saveProfile,
+  setAccessibilityPreferences,
+  setAudioPreferences,
+  setCameraPreferences,
+  setComfortMode,
   setHaptics,
   setMotionPreferences,
+  setTutorialSeen,
   updateProfile
 } from './state.js';
 
@@ -37,7 +51,9 @@ const palettes = {
     player: '#ff6b8a',
     playerBright: '#ffd2dc',
     key: '#ffc857',
-    exit: '#36e0c5'
+    exit: '#36e0c5',
+    hole: '#050611',
+    holeGlow: '#ff6b8a'
   },
   ember: {
     background: '#180b12',
@@ -48,7 +64,9 @@ const palettes = {
     player: '#ffd166',
     playerBright: '#fff1bd',
     key: '#ffc857',
-    exit: '#62e6c4'
+    exit: '#62e6c4',
+    hole: '#12070d',
+    holeGlow: '#ff715b'
   },
   forest: {
     background: '#071711',
@@ -59,7 +77,9 @@ const palettes = {
     player: '#ff9f68',
     playerBright: '#ffe2c9',
     key: '#ffd166',
-    exit: '#b5f36d'
+    exit: '#b5f36d',
+    hole: '#030e0a',
+    holeGlow: '#ff9f68'
   },
   ice: {
     background: '#071621',
@@ -70,7 +90,9 @@ const palettes = {
     player: '#ff8fc8',
     playerBright: '#ffe1f1',
     key: '#ffe08a',
-    exit: '#8ff2e1'
+    exit: '#8ff2e1',
+    hole: '#050d17',
+    holeGlow: '#ff8fc8'
   }
 };
 
@@ -88,6 +110,9 @@ export function initGame() {
     objectiveText: document.getElementById('objectiveText'),
     keyStatus: document.getElementById('keyStatus'),
     motionStatus: document.getElementById('motionStatus'),
+    difficultyStatus: document.getElementById('difficultyStatus'),
+    savepointStatus: document.getElementById('savepointStatus'),
+    motionTelemetry: document.getElementById('motionTelemetry'),
     timer: document.getElementById('levelTimer'),
     hudRank: document.getElementById('hudRank'),
     hudXp: document.getElementById('hudXp'),
@@ -96,6 +121,10 @@ export function initGame() {
     menuRankTitle: document.getElementById('menuRankTitle'),
     menuLevel: document.getElementById('menuLevel'),
     menuAchievements: document.getElementById('menuAchievements'),
+    dailyDate: document.getElementById('dailyDate'),
+    dailyStatus: document.getElementById('dailyStatus'),
+    dailyChallengeBtn: document.getElementById('dailyChallengeBtn'),
+    tutorialMenuBtn: document.getElementById('tutorialMenuBtn'),
     continueBtn: document.getElementById('continueBtn'),
     newRunBtn: document.getElementById('newRunBtn'),
     levelInput: document.getElementById('levelInput'),
@@ -105,19 +134,52 @@ export function initGame() {
     achievementsModal: document.getElementById('achievementsModal'),
     pauseModal: document.getElementById('pauseModal'),
     completionModal: document.getElementById('completionModal'),
+    tutorialModal: document.getElementById('tutorialModal'),
+    tutorialVisual: document.getElementById('tutorialVisual'),
+    tutorialTitle: document.getElementById('tutorialTitle'),
+    tutorialCopy: document.getElementById('tutorialCopy'),
+    tutorialProgress: document.getElementById('tutorialProgress'),
+    tutorialPrevBtn: document.getElementById('tutorialPrevBtn'),
+    tutorialNextBtn: document.getElementById('tutorialNextBtn'),
+    tutorialSkipBtn: document.getElementById('tutorialSkipBtn'),
     toastStack: document.getElementById('toastStack'),
     achievementsGrid: document.getElementById('achievementsGrid'),
     achievementProgress: document.getElementById('achievementProgress'),
+    achievementCollections: document.getElementById('achievementCollections'),
+    nextAchievementHint: document.getElementById('nextAchievementHint'),
     motionToggle: document.getElementById('motionToggle'),
     motionSensitivity: document.getElementById('motionSensitivity'),
     motionSensitivityValue: document.getElementById('motionSensitivityValue'),
     invertMotion: document.getElementById('invertMotion'),
     hapticsToggle: document.getElementById('hapticsToggle'),
     themeSelect: document.getElementById('themeSelect'),
+    comfortMode: document.getElementById('comfortMode'),
+    comfortModeDescription: document.getElementById('comfortModeDescription'),
+    cameraFollow: document.getElementById('cameraFollow'),
+    cameraFollowValue: document.getElementById('cameraFollowValue'),
+    minimapZoom: document.getElementById('minimapZoom'),
+    minimapZoomValue: document.getElementById('minimapZoomValue'),
+    indicatorLabels: document.getElementById('indicatorLabels'),
+    highContrast: document.getElementById('highContrast'),
+    reducedMotion: document.getElementById('reducedMotion'),
+    largeText: document.getElementById('largeText'),
+    leftHanded: document.getElementById('leftHanded'),
+    colorblindSafe: document.getElementById('colorblindSafe'),
+    sfxToggle: document.getElementById('sfxToggle'),
+    sfxVolume: document.getElementById('sfxVolume'),
+    musicToggle: document.getElementById('musicToggle'),
+    musicVolume: document.getElementById('musicVolume'),
+    backupCode: document.getElementById('backupCode'),
+    backupExportBtn: document.getElementById('backupExportBtn'),
+    backupCopyBtn: document.getElementById('backupCopyBtn'),
+    backupImportBtn: document.getElementById('backupImportBtn'),
+    lastInput: document.getElementById('lastInput'),
     completionTitle: document.getElementById('completionTitle'),
     completionSummary: document.getElementById('completionSummary'),
     completionXp: document.getElementById('completionXp'),
-    completionNextBtn: document.getElementById('completionNextBtn')
+    completionRecap: document.getElementById('completionRecap'),
+    completionNextBtn: document.getElementById('completionNextBtn'),
+    togglePanelsBtn: document.getElementById('togglePanelsBtn')
   };
 
   const ctx = elements.canvas.getContext('2d');
@@ -134,27 +196,167 @@ export function initGame() {
     player: { x: 1, y: 1 },
     key: { x: 1, y: 2 },
     exit: { x: 3, y: 3 },
+    difficulty: getLevelDifficulty(1),
+    hazards: { holes: [] },
+    savepoint: { x: 1, y: 1, hasKey: false, label: 'Start' },
     hasKey: false,
     motionUsed: false,
     levelStart: 0,
+    movesThisLevel: 0,
+    wallBumpsThisLevel: 0,
+    keyMoves: null,
+    daily: false,
+    inputShieldUntil: 0,
+    lastInput: 'Bereit',
     cellSize: CONFIG.cellSize,
     viewport: { width: 0, height: 0 },
     dpr: 1,
     pointerStart: null,
     lastMove: 0,
     levelTimer: null,
-    achievementFilter: 'all'
+    achievementFilter: 'all',
+    tutorialStep: 0,
+    routeHint: [],
+    playerTween: null,
+    rolling: { dx: 0, dy: 0, intensity: 0, angle: 0 },
+    fallFlashUntil: 0,
+    manualHold: null,
+    manualHoldTimer: null,
+    motionTelemetry: { intensity: 0, x: 0, y: 0 }
   };
 
   let animationFrame = null;
-  const motionControls = initMotionControls((dx, dy) => {
+  const audio = createAudioFeedback();
+  const motionControls = initMotionControls((dx, dy, intensity) => {
     if (!game.active || game.paused) return;
     game.motionUsed = true;
-    movePlayer(dx, dy, 'motion');
+    return movePlayer(dx, dy, 'motion', intensity);
+  }, (movement) => {
+    game.motionTelemetry = movement;
+    updateMotionTelemetry();
   });
 
   function palette() {
-    return palettes[getProfile().theme] || palettes.neon;
+    const colors = { ...(palettes[getProfile().theme] || palettes.neon) };
+    if (getProfile().colorblindSafe) {
+      colors.player = '#ff4f8b';
+      colors.playerBright = '#ffe5f0';
+      colors.key = '#ff9f1c';
+      colors.exit = '#00d4ff';
+    }
+    return colors;
+  }
+
+  function comfortPreset() {
+    return CONFIG.comfortModes[getProfile().comfortMode] || CONFIG.comfortModes.standard;
+  }
+
+  function dailyDateKey() {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  function dailyLabel() {
+    return new Intl.DateTimeFormat('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' }).format(new Date());
+  }
+
+  function dailySeedToken() {
+    return createDailySeed().toString(16).toUpperCase().padStart(8, '0').slice(-8);
+  }
+
+  function markInput(label, tone = 'info') {
+    game.lastInput = label;
+    elements.lastInput.textContent = label;
+    elements.lastInput.classList.toggle('muted', tone === 'info');
+  }
+
+  function applyAccessibility() {
+    const profile = getProfile();
+    document.body.classList.toggle('a11y-high-contrast', profile.highContrast);
+    document.body.classList.toggle('a11y-reduced-motion', profile.reducedMotion);
+    document.body.classList.toggle('a11y-large-text', profile.largeText);
+    document.body.classList.toggle('a11y-left-handed', profile.leftHanded);
+    document.body.classList.toggle('a11y-colorblind', profile.colorblindSafe);
+    audio.setSfxEnabled(profile.sfxEnabled);
+    audio.setSfxVolume(profile.sfxVolume);
+    audio.setMusicVolume(profile.musicVolume);
+    audio.setMusicEnabled(profile.musicEnabled);
+  }
+
+  function backupEnvelope() {
+    return { app: 'Labyrinthia', version: CONFIG.appVersion, exportedAt: new Date().toISOString(), profile: exportProfile() };
+  }
+
+  function writeBackupCode() {
+    elements.backupCode.value = JSON.stringify(backupEnvelope(), null, 2);
+    announce('Backup-Code erzeugt · lokal kopieren und sicher aufbewahren', 'success');
+  }
+
+  async function copyBackupCode() {
+    if (!elements.backupCode.value.trim()) writeBackupCode();
+    try {
+      await navigator.clipboard.writeText(elements.backupCode.value);
+      announce('Backup-Code in die Zwischenablage kopiert', 'success');
+    } catch {
+      elements.backupCode.focus();
+      elements.backupCode.select();
+      document.execCommand('copy');
+      announce('Backup-Code markiert · bitte kopieren', 'info');
+    }
+  }
+
+  function importBackupCode() {
+    try {
+      const payload = JSON.parse(elements.backupCode.value);
+      if (payload.app !== 'Labyrinthia') throw new Error('falsche App');
+      importProfile(payload);
+      syncSettings();
+      applyAccessibility();
+      updateMenuStats();
+      announce('Spielstand importiert · willkommen zurück', 'success');
+      audio.play('rank');
+    } catch {
+      announce('Backup-Code ist ungültig oder beschädigt.', 'warning');
+    }
+  }
+
+  const tutorialSlides = [
+    { icon: '◎', title: 'Lies den Raum', copy: 'Wische auf dem Spielfeld, nutze das D-Pad oder neige dein Gerät. Deine Figur bleibt groß, auch wenn das Labyrinth wächst.' },
+    { icon: '⌁', title: 'Schlüssel vor Ausgang', copy: 'Hole den goldenen Schlüssel. Der Ausgang wird aktiv und bleibt mit einem Zielpfeil und auf der Minimap sichtbar.' },
+    { icon: '✦', title: 'Jeder Run zählt', copy: 'Sammle XP, Ränge und Achievement-Ketten. Nach jedem Escape bekommst du eine kompakte Run-Rekapitulierung und ein nächstes Ziel.' }
+  ];
+
+  function renderTutorial() {
+    const slide = tutorialSlides[game.tutorialStep];
+    elements.tutorialVisual.textContent = slide.icon;
+    elements.tutorialTitle.textContent = slide.title;
+    elements.tutorialCopy.textContent = slide.copy;
+    elements.tutorialPrevBtn.disabled = game.tutorialStep === 0;
+    elements.tutorialNextBtn.textContent = game.tutorialStep === tutorialSlides.length - 1 ? 'Expedition starten' : 'Weiter';
+    elements.tutorialProgress.innerHTML = tutorialSlides.map((_, index) => `<span class="tutorial-dot ${index === game.tutorialStep ? 'is-active' : ''}" aria-hidden="true"></span>`).join('');
+  }
+
+  function openTutorial() {
+    game.tutorialStep = 0;
+    renderTutorial();
+    openModal(elements.tutorialModal);
+    audio.play('click');
+  }
+
+  function finishTutorial() {
+    setTutorialSeen(true);
+    closeModal(elements.tutorialModal);
+    announce('Tutorial abgeschlossen · deine Expedition wartet', 'success');
+  }
+
+  function advanceTutorial(direction = 1) {
+    const nextStep = game.tutorialStep + direction;
+    if (nextStep >= tutorialSlides.length) {
+      finishTutorial();
+      return;
+    }
+    game.tutorialStep = Math.max(0, nextStep);
+    renderTutorial();
+    audio.play('click');
   }
 
   function showScreen(screen) {
@@ -164,6 +366,7 @@ export function initGame() {
       updateMenuStats();
       closeModal(elements.pauseModal);
       closeModal(elements.completionModal);
+      closeModal(elements.tutorialModal);
     }
     if (screen === 'game') {
       requestAnimationFrame(() => {
@@ -185,7 +388,7 @@ export function initGame() {
   }
 
   function closeAllModals() {
-    [elements.levelModal, elements.settingsModal, elements.achievementsModal, elements.pauseModal, elements.completionModal]
+    [elements.levelModal, elements.settingsModal, elements.achievementsModal, elements.pauseModal, elements.completionModal, elements.tutorialModal]
       .forEach(closeModal);
   }
 
@@ -220,6 +423,24 @@ export function initGame() {
     elements.menuLevel.textContent = `Level ${profile.currentLevel}`;
     elements.menuAchievements.textContent = `${stats.unlocked} / ${stats.total}`;
     elements.continueBtn.textContent = profile.currentLevel > 1 ? `Expedition fortsetzen · Level ${profile.currentLevel}` : 'Expedition beginnen';
+    elements.dailyDate.textContent = `${dailyLabel()} · Tagesroute`;
+    if (profile.dailyBestDate === dailyDateKey() && profile.dailyBestTime !== null) {
+      elements.dailyStatus.textContent = `Seed ${dailySeedToken()} · Bestzeit ${formatTime(profile.dailyBestTime)}.`;
+    } else {
+      elements.dailyStatus.textContent = `Seed ${dailySeedToken()} · optional und offline spielbar.`;
+    }
+  }
+
+  function updateMotionTelemetry() {
+    if (!elements.motionTelemetry) return;
+    const intensity = Math.round(clamp(Number(game.motionTelemetry?.intensity) || 0, 0, 1) * 100);
+    if (!motionControls.isEnabled()) {
+      elements.motionTelemetry.textContent = 'Sensor wartet · aktiviere die Kugelbrett-Steuerung';
+      return;
+    }
+    elements.motionTelemetry.textContent = intensity > 0
+      ? `Neigung ${intensity}% · Geschwindigkeit wird physikalisch aufgebaut`
+      : 'Waagerecht · bereit zum Rollen';
   }
 
   function updateHud() {
@@ -236,6 +457,13 @@ export function initGame() {
     elements.timer.textContent = formatTime(elapsed);
     elements.motionStatus.textContent = motionControls.isEnabled() ? 'Sensorsteuerung aktiv' : 'Touch / Pfeile';
     elements.motionStatus.classList.toggle('is-active', motionControls.isEnabled());
+    if (elements.difficultyStatus) {
+      elements.difficultyStatus.textContent = game.difficulty?.label || 'Warm-up';
+    }
+    if (elements.savepointStatus) {
+      elements.savepointStatus.textContent = `Savepoint: ${game.savepoint?.label || 'Start'}`;
+    }
+    updateMotionTelemetry();
   }
 
   function formatTime(milliseconds) {
@@ -246,25 +474,44 @@ export function initGame() {
 
   function startNewRun() {
     resetRun();
-    startLevel(1);
+    startLevel(1, { daily: false });
   }
 
   function continueRun() {
-    startLevel(getProfile().currentLevel || 1);
+    startLevel(getProfile().currentLevel || 1, { daily: false });
   }
 
-  function startLevel(level) {
+  function startDailyChallenge() {
+    startLevel(1, { daily: true, seed: createDailySeed() });
+  }
+
+  function startLevel(level, options = {}) {
     const nextLevel = Math.max(1, Math.floor(Number(level) || 1));
     closeAllModals();
     game.level = nextLevel;
-    game.seed = createSeed(nextLevel, Date.now() + Math.floor(Math.random() * 100000));
+    game.seed = options.seed ?? createSeed(nextLevel, Date.now() + Math.floor(Math.random() * 100000));
     game.hasKey = false;
     game.completed = false;
     game.paused = false;
     game.active = true;
     game.motionUsed = motionControls.isEnabled();
+    game.daily = Boolean(options.daily);
+    game.movesThisLevel = 0;
+    game.wallBumpsThisLevel = 0;
+    game.keyMoves = null;
+    game.routeHint = [];
+    game.difficulty = getLevelDifficulty(nextLevel);
+    game.hazards = { holes: [] };
+    game.savepoint = { x: 1, y: 1, hasKey: false, label: 'Start' };
+    game.playerTween = null;
+    game.rolling = { dx: 0, dy: 0, intensity: 0, angle: 0 };
+    game.lastMove = 0;
+    game.fallFlashUntil = 0;
+    stopDirectionalHold();
+    game.inputShieldUntil = Date.now() + 220;
+    markInput(game.daily ? 'Daily route' : 'Bereit');
     game.levelStart = now();
-    updateProfile({ currentLevel: nextLevel });
+    if (!game.daily) updateProfile({ currentLevel: nextLevel });
     showScreen('game');
     resizeCanvas();
     const mazeData = initMaze(elements.canvas, game.cellSize, nextLevel, game.seed);
@@ -275,51 +522,109 @@ export function initGame() {
     generateMaze(game.maze, game.cols, game.rows, nextLevel, game.seed);
     game.key = chooseKey(game.maze, game.cols, game.rows, game.exit, game.seed);
     game.player = { x: 1, y: 1 };
+    game.hazards = applyLevelHazards(game.maze, game.cols, game.rows, nextLevel, game.seed, game.player, game.key, game.exit);
+    if (comfortPreset().showRouteHint) {
+      game.routeHint = solveMaze(game.maze, game.player, game.key, game.cols, game.rows).slice(0, 8);
+    }
     updateHud();
-    announce(`Level ${nextLevel.toLocaleString()} generiert · ${game.cols} × ${game.rows} Zellen`, 'info');
+    announce(`${game.daily ? 'Daily route' : `Level ${nextLevel.toLocaleString()}`} generiert · ${game.cols} × ${game.rows} Zellen`, 'info');
+    audio.play('click');
     draw();
   }
 
   function completeLevel() {
     game.completed = true;
+    stopDirectionalHold();
     const durationMs = now() - game.levelStart;
-    const newAchievements = recordLevelComplete({ level: game.level, durationMs, usedMotion: game.motionUsed });
+    const rankBefore = getRank(getProfile().xp).rank;
+    const newAchievements = recordLevelComplete({
+      level: game.level,
+      durationMs,
+      usedMotion: game.motionUsed,
+      moves: game.movesThisLevel,
+      wallBumps: game.wallBumpsThisLevel,
+      daily: game.daily
+    });
     const profile = getProfile();
     const xpGain = 100 + Math.min(500, game.level * 5);
     elements.completionTitle.textContent = `Level ${game.level.toLocaleString()} gemeistert`;
-    elements.completionSummary.textContent = `${formatTime(durationMs)} · ${profile.levelsCompleted.toLocaleString()} abgeschlossene Level · ${game.motionUsed ? 'mit Sensorsteuerung' : 'klassisch gespielt'}`;
+    elements.completionSummary.textContent = `${game.daily ? 'Daily route' : 'Expedition'} · ${profile.levelsCompleted.toLocaleString()} abgeschlossene Level · ${game.motionUsed ? 'mit Sensorsteuerung' : 'klassisch gespielt'}`;
     elements.completionXp.textContent = `+${xpGain} XP`;
     elements.completionNextBtn.textContent = `Weiter zu Level ${(game.level + 1).toLocaleString()}`;
+    elements.completionRecap.innerHTML = [
+      ['Zeit', formatTime(durationMs)],
+      ['Moves', game.movesThisLevel.toLocaleString()],
+      ['Schlüssel', game.keyMoves === null ? 'Start' : `${game.keyMoves} Moves`],
+      ['Wände', game.wallBumpsThisLevel.toLocaleString()],
+      ['Nächstes Ziel', game.daily ? 'Daily schlagen' : `Level ${game.level + 1}`],
+      ['Rang', `Rang ${getRank(profile.xp).rank}`]
+    ].map(([label, value]) => `<div class="recap-stat"><span>${label}</span><strong>${escapeHtml(value)}</strong></div>`).join('');
     updateHud();
     openModal(elements.completionModal);
     hapticPulse([18, 40, 28]);
+    audio.play('complete');
+    if (getRank(profile.xp).rank > rankBefore) audio.play('rank');
     announceAchievements(newAchievements);
+    updateMenuStats();
   }
 
-  function movePlayer(dx, dy, source = 'input') {
-    if (!game.active || game.paused || game.completed) return;
-    if (!Number.isFinite(dx) || !Number.isFinite(dy)) return;
+  function movePlayer(dx, dy, source = 'input', intensity = 0) {
+    if (!game.active || game.paused || game.completed) return false;
+    if (!Number.isFinite(dx) || !Number.isFinite(dy)) return false;
+    if (source !== 'motion' && Date.now() < game.inputShieldUntil) return null;
     const directionX = clamp(Math.round(dx), -1, 1);
     const directionY = clamp(Math.round(dy), -1, 1);
-    if ((directionX === 0 && directionY === 0) || (directionX !== 0 && directionY !== 0)) return;
+    if ((directionX === 0 && directionY === 0) || (directionX !== 0 && directionY !== 0)) return false;
     const timestamp = Date.now();
-    const delay = source === 'motion' ? CONFIG.motionMoveDelay : CONFIG.moveDelay;
-    if (timestamp - game.lastMove < delay) return;
+    const normalizedIntensity = clamp(Number(intensity) || 0, 0, 1);
+    // A steeper tilt produces a shorter move interval. The physics module
+    // still carries momentum, so speed builds naturally instead of jumping.
+    const delay = source === 'motion'
+      ? Math.max(44, CONFIG.motionMoveDelay / (0.35 + normalizedIntensity * 1.65))
+      : comfortPreset().moveDelay;
+    if (timestamp - game.lastMove < delay) return null;
     game.lastMove = timestamp;
     if (!canMove(game.maze, game.player, directionX, directionY)) {
+      game.wallBumpsThisLevel += 1;
+      recordWallBump();
       if (source !== 'motion') hapticPulse(5);
-      return;
+      audio.play('wall');
+      markInput('Wandkontakt', 'warning');
+      return false;
     }
 
+    const previousPlayer = { ...game.player };
     game.player = { x: game.player.x + directionX, y: game.player.y + directionY };
+    game.playerTween = { from: previousPlayer, to: { ...game.player }, started: now(), duration: Math.max(68, delay * 0.82) };
+    game.rolling = {
+      dx: directionX,
+      dy: directionY,
+      intensity: source === 'motion' ? normalizedIntensity : 0.78,
+      angle: game.rolling.angle + (directionX - directionY) * Math.PI * 0.62
+    };
+    game.movesThisLevel += 1;
     recordMove();
     hapticPulse(4);
+    audio.play('move');
+    markInput(source === 'motion' ? 'Tilt' : 'Move');
 
     if (!game.hasKey && game.player.x === game.key.x && game.player.y === game.key.y) {
       game.hasKey = true;
+      game.keyMoves = game.movesThisLevel;
+      game.savepoint = { x: game.player.x, y: game.player.y, hasKey: true, label: 'Schlüssel-Savepoint' };
       const newAchievements = recordKey();
       announce('Schlüssel gesichert · Ausgang aktiviert', 'success');
+      audio.play('key');
       announceAchievements(newAchievements);
+      if (comfortPreset().showRouteHint) {
+        game.routeHint = solveMaze(game.maze, game.player, game.exit, game.cols, game.rows).slice(0, 8);
+      }
+    }
+
+    const landedCell = game.maze[game.player.y]?.[game.player.x];
+    if (landedCell?.hazard === 'hole') {
+      triggerFall();
+      return true;
     }
 
     if (game.player.x === game.exit.x && game.player.y === game.exit.y) {
@@ -327,10 +632,56 @@ export function initGame() {
         completeLevel();
       } else {
         announce('Der Ausgang ist versiegelt. Finde zuerst den Schlüssel.', 'warning');
+        audio.play('wall');
+        stopDirectionalHold();
+        return false;
       }
     }
     updateHud();
     draw();
+    return true;
+  }
+
+  function triggerFall() {
+    const savepoint = game.savepoint || { x: 1, y: 1, hasKey: false, label: 'Start' };
+    const fallenFrom = { ...game.player };
+    game.hasKey = Boolean(savepoint.hasKey);
+    game.player = { x: savepoint.x, y: savepoint.y };
+    game.playerTween = { from: fallenFrom, to: { ...game.player }, started: now(), duration: 260 };
+    game.rolling = { dx: 0, dy: 0, intensity: 0, angle: game.rolling.angle };
+    game.fallFlashUntil = Date.now() + 520;
+    stopDirectionalHold();
+    hapticPulse([12, 45, 12]);
+    audio.play('fall');
+    markInput('Fallloch · zurück zum Savepoint', 'warning');
+    announce(`Fallloch · zurück zu ${savepoint.label}`, 'warning');
+    game.routeHint = comfortPreset().showRouteHint
+      ? solveMaze(game.maze, game.player, game.hasKey ? game.exit : game.key, game.cols, game.rows).slice(0, 8)
+      : [];
+    updateHud();
+    draw();
+  }
+
+  function stopDirectionalHold() {
+    if (game.manualHoldTimer) window.clearInterval(game.manualHoldTimer);
+    game.manualHoldTimer = null;
+    game.manualHold = null;
+    document.querySelectorAll('.dpad-btn.is-pressed').forEach((button) => button.classList.remove('is-pressed'));
+  }
+
+  function startDirectionalHold(dx, dy, source = 'swipe') {
+    const directionX = clamp(Math.round(dx), -1, 1);
+    const directionY = clamp(Math.round(dy), -1, 1);
+    if ((directionX === 0 && directionY === 0) || (directionX !== 0 && directionY !== 0)) return;
+    stopDirectionalHold();
+    game.manualHold = { dx: directionX, dy: directionY, source };
+    const repeat = () => {
+      if (!game.manualHold) return;
+      const result = movePlayer(game.manualHold.dx, game.manualHold.dy, game.manualHold.source);
+      if (result === false) stopDirectionalHold();
+    };
+    repeat();
+    game.manualHoldTimer = window.setInterval(repeat, Math.max(38, comfortPreset().moveDelay * 0.68));
   }
 
   function togglePause() {
@@ -383,8 +734,11 @@ export function initGame() {
     const worldHeight = game.rows * game.cellSize;
     const playerCenterX = (game.player.x + 0.5) * game.cellSize;
     const playerCenterY = (game.player.y + 0.5) * game.cellSize;
-    const viewX = worldWidth <= width ? (worldWidth - width) / 2 : playerCenterX - width / 2;
-    const viewY = worldHeight <= height ? (worldHeight - height) / 2 : playerCenterY - height / 2;
+    const follow = getProfile().cameraFollow;
+    const desiredViewX = playerCenterX - (width * follow) / 2;
+    const desiredViewY = playerCenterY - (height * follow) / 2;
+    const viewX = worldWidth <= width ? (worldWidth - width) / 2 : clamp(desiredViewX, 0, worldWidth - width);
+    const viewY = worldHeight <= height ? (worldHeight - height) / 2 : clamp(desiredViewY, 0, worldHeight - height);
     const startX = Math.max(0, Math.floor(viewX / game.cellSize) - 1);
     const endX = Math.min(game.cols - 1, Math.ceil((viewX + width) / game.cellSize) + 1);
     const startY = Math.max(0, Math.floor(viewY / game.cellSize) - 1);
@@ -397,6 +751,7 @@ export function initGame() {
         const cell = game.maze[y][x];
         ctx.fillStyle = (x + y) % 2 === 0 ? colors.floor : colors.floorAlt;
         ctx.fillRect(x * game.cellSize, y * game.cellSize, game.cellSize, game.cellSize);
+        if (cell.hazard === 'hole') drawHole(cell, colors);
         ctx.strokeStyle = colors.wall;
         ctx.lineWidth = Math.max(1.3, game.cellSize * 0.055);
         ctx.shadowBlur = game.cellSize > 30 ? 4 : 2;
@@ -411,14 +766,45 @@ export function initGame() {
       }
     }
 
+    drawRouteHint(colors);
     drawMarker(game.key, colors.key, '⌁', !game.hasKey);
     drawMarker(game.exit, colors.exit, '↗', game.hasKey);
     drawPlayer(colors);
     ctx.restore();
 
-    drawOffscreenIndicator(game.key, colors.key, 'KEY', viewX, viewY);
-    drawOffscreenIndicator(game.exit, colors.exit, 'EXIT', viewX, viewY);
+    if (!game.hasKey) drawOffscreenIndicator(game.key, colors.key, 'KEY', viewX, viewY);
+    if (game.hasKey) drawOffscreenIndicator(game.exit, colors.exit, 'EXIT', viewX, viewY);
+    if (game.fallFlashUntil > Date.now()) {
+      ctx.fillStyle = `rgba(255, 107, 138, ${Math.max(0, (game.fallFlashUntil - Date.now()) / 2400)})`;
+      ctx.fillRect(0, 0, width, height);
+    }
     drawMiniMap(colors);
+  }
+
+  function drawHole(cell, colors) {
+    const centerX = (cell.x + 0.5) * game.cellSize;
+    const centerY = (cell.y + 0.5) * game.cellSize;
+    const radius = game.cellSize * (cell.holeRadius || 0.25);
+    const glow = ctx.createRadialGradient(centerX, centerY, radius * 0.2, centerX, centerY, radius * 1.8);
+    glow.addColorStop(0, colors.hole);
+    glow.addColorStop(0.55, colors.hole);
+    glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.save();
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius * 1.8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = colors.holeGlow;
+    ctx.globalAlpha = 0.62;
+    ctx.lineWidth = Math.max(1.2, game.cellSize * 0.04);
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius * 0.92, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.globalAlpha = 0.3;
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius * 1.18, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
   }
 
   function drawMarker(point, color, glyph, visible) {
@@ -441,21 +827,67 @@ export function initGame() {
     ctx.restore();
   }
 
-  function drawPlayer(colors) {
-    const x = (game.player.x + 0.5) * game.cellSize;
-    const y = (game.player.y + 0.5) * game.cellSize;
-    const radius = game.cellSize * 0.34;
+  function drawRouteHint(colors) {
+    if (!game.routeHint || game.routeHint.length < 2 || game.hasKey) return;
     ctx.save();
-    ctx.fillStyle = colors.player;
+    ctx.strokeStyle = colors.key;
+    ctx.globalAlpha = 0.34;
+    ctx.lineWidth = Math.max(2, game.cellSize * 0.1);
+    ctx.setLineDash([game.cellSize * 0.16, game.cellSize * 0.22]);
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    game.routeHint.forEach((point, index) => {
+      const x = (point.x + 0.5) * game.cellSize;
+      const y = (point.y + 0.5) * game.cellSize;
+      if (index === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawPlayer(colors) {
+    let visualX = game.player.x;
+    let visualY = game.player.y;
+    let progress = 1;
+    if (game.playerTween) {
+      progress = clamp((now() - game.playerTween.started) / game.playerTween.duration, 0, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      visualX = game.playerTween.from.x + (game.playerTween.to.x - game.playerTween.from.x) * eased;
+      visualY = game.playerTween.from.y + (game.playerTween.to.y - game.playerTween.from.y) * eased;
+      if (progress >= 1) game.playerTween = null;
+    }
+    const x = (visualX + 0.5) * game.cellSize;
+    const y = (visualY + 0.5) * game.cellSize;
+    const pulse = getProfile().reducedMotion ? 0 : Math.sin(now() / 220) * 0.035;
+    const radius = game.cellSize * (0.34 + pulse);
+    ctx.save();
+    const sphere = ctx.createRadialGradient(x - radius * 0.28, y - radius * 0.34, radius * 0.08, x, y, radius * 1.08);
+    sphere.addColorStop(0, colors.playerBright);
+    sphere.addColorStop(0.22, colors.player);
+    sphere.addColorStop(1, '#8b244e');
+    ctx.fillStyle = sphere;
     ctx.shadowColor = colors.player;
     ctx.shadowBlur = 18;
     ctx.beginPath();
     ctx.arc(x, y, radius, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = colors.playerBright;
+    ctx.fillStyle = 'rgba(255,255,255,.66)';
     ctx.beginPath();
     ctx.arc(x - radius * 0.25, y - radius * 0.25, radius * 0.34, 0, Math.PI * 2);
     ctx.fill();
+    // A rotating seam makes the sphere read as a rolling ball rather than a
+    // static token. Reduced-motion mode keeps the ball readable and calm.
+    const seamRotation = getProfile().reducedMotion ? 0 : game.rolling.angle + progress * 1.35;
+    ctx.translate(x, y);
+    ctx.rotate(seamRotation);
+    ctx.strokeStyle = 'rgba(255,255,255,.58)';
+    ctx.lineWidth = Math.max(1.3, game.cellSize * 0.045);
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * 0.72, -0.92, 0.92);
+    ctx.stroke();
+    ctx.rotate(-seamRotation);
+    ctx.translate(-x, -y);
     ctx.fillStyle = '#1a1231';
     ctx.beginPath();
     ctx.arc(x - radius * 0.2, y - radius * 0.03, radius * 0.08, 0, Math.PI * 2);
@@ -493,7 +925,7 @@ export function initGame() {
     ctx.rotate(-angle);
     ctx.font = '700 9px system-ui';
     ctx.textAlign = 'center';
-    ctx.fillText(label, 0, 22);
+    if (getProfile().indicatorLabels && comfortPreset().showIndicatorLabels) ctx.fillText(label, 0, 22);
     ctx.restore();
   }
 
@@ -505,7 +937,7 @@ export function initGame() {
     miniCtx.fillStyle = '#080c1e';
     miniCtx.fillRect(0, 0, width, height);
     if (!game.maze.length) return;
-    const scale = Math.min((width - 12) / game.cols, (height - 12) / game.rows);
+    const scale = Math.min((width - 12) / game.cols, (height - 12) / game.rows) * getProfile().minimapZoom;
     const offsetX = (width - game.cols * scale) / 2;
     const offsetY = (height - game.rows * scale) / 2;
     miniCtx.strokeStyle = 'rgba(140, 130, 255, .6)';
@@ -516,6 +948,12 @@ export function initGame() {
         const cell = game.maze[y][x];
         const px = offsetX + x * scale;
         const py = offsetY + y * scale;
+        if (cell.hazard === 'hole') {
+          miniCtx.fillStyle = colors.holeGlow;
+          miniCtx.globalAlpha = 0.72;
+          miniCtx.fillRect(px + scale * 0.18, py + scale * 0.18, Math.max(1, scale * 0.64), Math.max(1, scale * 0.64));
+          miniCtx.globalAlpha = 1;
+        }
         if (cell.walls[0]) { miniCtx.moveTo(px, py); miniCtx.lineTo(px + scale, py); }
         if (cell.walls[1]) { miniCtx.moveTo(px + scale, py); miniCtx.lineTo(px + scale, py + scale); }
         if (cell.walls[2]) { miniCtx.moveTo(px, py + scale); miniCtx.lineTo(px + scale, py + scale); }
@@ -523,6 +961,7 @@ export function initGame() {
       }
     }
     miniCtx.stroke();
+    drawMiniDot(game.savepoint, colors.accent || colors.exit, scale, offsetX, offsetY);
     drawMiniDot(game.exit, colors.exit, scale, offsetX, offsetY);
     if (!game.hasKey) drawMiniDot(game.key, colors.key, scale, offsetX, offsetY);
     drawMiniDot(game.player, colors.player, scale, offsetX, offsetY);
@@ -539,10 +978,14 @@ export function initGame() {
     const achievements = getAchievements();
     const unlocked = getUnlockedAchievements();
     const profile = getProfile();
+    const collections = getAchievementCollections();
     const filtered = elements.achievementsModal.querySelector('[data-achievement-filter].is-selected')?.dataset.achievementFilter || 'all';
     game.achievementFilter = filtered;
     const visible = achievements.filter((achievement) => filtered === 'all' || achievement.category === filtered);
     elements.achievementProgress.textContent = `${unlocked.size} / ${achievements.length} freigeschaltet`;
+    elements.achievementCollections.innerHTML = collections.map((collection) => `<div class="achievement-collection"><strong>${collection.category}</strong><span>${collection.unlocked} / ${collection.total}</span></div>`).join('');
+    const next = collections.find((collection) => collection.next)?.next;
+    elements.nextAchievementHint.textContent = next ? `Nächstes leichtes Ziel: ${next.title} · ${next.description}` : 'Alle Achievement-Ketten abgeschlossen. Du bist ein Eternal Labyrinthian.';
     elements.achievementsGrid.innerHTML = visible.map((achievement) => {
       const isUnlocked = unlocked.has(achievement.id);
       const progress = Math.min(100, Math.round((getAchievementProgress(achievement, profile) / achievement.threshold) * 100));
@@ -587,13 +1030,37 @@ export function initGame() {
     elements.invertMotion.checked = profile.invertMotion;
     elements.hapticsToggle.checked = profile.haptics;
     elements.themeSelect.value = profile.theme;
+    elements.comfortMode.value = profile.comfortMode;
+    elements.comfortModeDescription.textContent = CONFIG.comfortModes[profile.comfortMode]?.description || CONFIG.comfortModes.standard.description;
+    elements.cameraFollow.value = profile.cameraFollow;
+    elements.cameraFollowValue.textContent = `${Math.round(profile.cameraFollow * 100)}%`;
+    elements.minimapZoom.value = profile.minimapZoom;
+    elements.minimapZoomValue.textContent = `${Number(profile.minimapZoom).toFixed(1)}×`;
+    elements.indicatorLabels.checked = profile.indicatorLabels;
+    elements.highContrast.checked = profile.highContrast;
+    elements.reducedMotion.checked = profile.reducedMotion;
+    elements.largeText.checked = profile.largeText;
+    elements.leftHanded.checked = profile.leftHanded;
+    elements.colorblindSafe.checked = profile.colorblindSafe;
+    elements.sfxToggle.checked = profile.sfxEnabled;
+    elements.sfxVolume.value = profile.sfxVolume;
+    elements.musicToggle.checked = profile.musicEnabled;
+    elements.musicVolume.value = profile.musicVolume;
     motionControls.setSensitivity(profile.motionSensitivity);
     motionControls.setInvert(profile.invertMotion);
+    applyAccessibility();
   }
 
   function bindControls() {
+    document.addEventListener('pointerdown', () => audio.unlock(), { once: true, passive: true });
+    document.addEventListener('keydown', () => audio.unlock(), { once: true, passive: true });
     elements.continueBtn.addEventListener('click', continueRun);
     elements.newRunBtn.addEventListener('click', startNewRun);
+    elements.dailyChallengeBtn.addEventListener('click', startDailyChallenge);
+    elements.tutorialMenuBtn.addEventListener('click', openTutorial);
+    elements.tutorialSkipBtn.addEventListener('click', finishTutorial);
+    elements.tutorialPrevBtn.addEventListener('click', () => advanceTutorial(-1));
+    elements.tutorialNextBtn.addEventListener('click', () => advanceTutorial(1));
     document.getElementById('openLevelBtn').addEventListener('click', () => {
       elements.levelInput.value = getProfile().currentLevel;
       openModal(elements.levelModal);
@@ -602,6 +1069,12 @@ export function initGame() {
     document.getElementById('menuAchievementsBtn').addEventListener('click', () => { renderAchievements(); openModal(elements.achievementsModal); });
     document.getElementById('menuSettingsBtn').addEventListener('click', () => { syncSettings(); openModal(elements.settingsModal); });
     document.getElementById('gameSettingsBtn').addEventListener('click', () => { syncSettings(); openModal(elements.settingsModal); });
+    elements.togglePanelsBtn?.addEventListener('click', () => {
+      const isFocusMode = elements.gameScreen.classList.toggle('focus-mode');
+      elements.togglePanelsBtn.textContent = isFocusMode ? '⤡' : '⤢';
+      elements.togglePanelsBtn.setAttribute('aria-label', isFocusMode ? 'Kartenansicht wiederherstellen' : 'Spielfeld maximieren');
+      requestAnimationFrame(resizeCanvas);
+    });
     document.getElementById('backToMenuBtn').addEventListener('click', () => { game.active = false; showScreen('menu'); });
     document.getElementById('pauseBtn').addEventListener('click', togglePause);
     document.getElementById('resumeBtn').addEventListener('click', togglePause);
@@ -612,6 +1085,7 @@ export function initGame() {
     document.getElementById('closeLevelModal').addEventListener('click', () => closeModal(elements.levelModal));
     document.getElementById('closeSettingsModal').addEventListener('click', () => closeModal(elements.settingsModal));
     document.getElementById('closeAchievementsModal').addEventListener('click', () => closeModal(elements.achievementsModal));
+    elements.tutorialModal.addEventListener('click', (event) => { if (event.target === elements.tutorialModal) finishTutorial(); });
     document.getElementById('calibrateMotionBtn').addEventListener('click', () => { motionControls.calibrate(); announce('Sensoren kalibriert. Halte das Gerät jetzt waagerecht.', 'success'); });
     document.getElementById('resetProgressBtn').addEventListener('click', () => {
       if (!window.confirm('Wirklich alle Level-, Rang- und Achievement-Fortschritte löschen?')) return;
@@ -619,6 +1093,7 @@ export function initGame() {
       motionControls.disable();
       syncSettings();
       updateMenuStats();
+      openTutorial();
       announce('Fortschritt zurückgesetzt', 'info');
     });
     elements.motionToggle.addEventListener('change', () => applyMotionSetting(elements.motionToggle.checked));
@@ -634,6 +1109,44 @@ export function initGame() {
     });
     elements.hapticsToggle.addEventListener('change', () => setHaptics(elements.hapticsToggle.checked));
     elements.themeSelect.addEventListener('change', () => { updateProfile({ theme: elements.themeSelect.value }); draw(); });
+    elements.comfortMode.addEventListener('change', () => {
+      setComfortMode(elements.comfortMode.value);
+      elements.comfortModeDescription.textContent = CONFIG.comfortModes[elements.comfortMode.value].description;
+      if (game.active && !game.completed) game.routeHint = CONFIG.comfortModes[elements.comfortMode.value].showRouteHint ? solveMaze(game.maze, game.player, game.hasKey ? game.exit : game.key, game.cols, game.rows).slice(0, 8) : [];
+      draw();
+      announce(`Komfort-Preset: ${CONFIG.comfortModes[elements.comfortMode.value].label}`, 'success');
+    });
+    elements.cameraFollow.addEventListener('input', () => {
+      const value = Number(elements.cameraFollow.value);
+      elements.cameraFollowValue.textContent = `${Math.round(value * 100)}%`;
+      setCameraPreferences({ follow: value });
+      draw();
+    });
+    elements.minimapZoom.addEventListener('input', () => {
+      const value = Number(elements.minimapZoom.value);
+      elements.minimapZoomValue.textContent = `${value.toFixed(1)}×`;
+      setCameraPreferences({ minimapZoom: value });
+      draw();
+    });
+    elements.indicatorLabels.addEventListener('change', () => { setCameraPreferences({ indicatorLabels: elements.indicatorLabels.checked }); draw(); });
+    [elements.highContrast, elements.reducedMotion, elements.largeText, elements.leftHanded, elements.colorblindSafe].forEach((input) => input.addEventListener('change', () => {
+      setAccessibilityPreferences({
+        highContrast: elements.highContrast.checked,
+        reducedMotion: elements.reducedMotion.checked,
+        largeText: elements.largeText.checked,
+        leftHanded: elements.leftHanded.checked,
+        colorblindSafe: elements.colorblindSafe.checked
+      });
+      applyAccessibility();
+      draw();
+    }));
+    elements.sfxToggle.addEventListener('change', () => { audio.unlock(); audio.setSfxEnabled(elements.sfxToggle.checked); setAudioPreferences({ sfxEnabled: elements.sfxToggle.checked }); });
+    elements.sfxVolume.addEventListener('input', () => { const value = Number(elements.sfxVolume.value); audio.setSfxVolume(value); setAudioPreferences({ sfxVolume: value }); });
+    elements.musicToggle.addEventListener('change', () => { audio.unlock(); audio.setMusicEnabled(elements.musicToggle.checked); setAudioPreferences({ musicEnabled: elements.musicToggle.checked }); });
+    elements.musicVolume.addEventListener('input', () => { const value = Number(elements.musicVolume.value); audio.setMusicVolume(value); setAudioPreferences({ musicVolume: value }); });
+    elements.backupExportBtn.addEventListener('click', writeBackupCode);
+    elements.backupCopyBtn.addEventListener('click', copyBackupCode);
+    elements.backupImportBtn.addEventListener('click', importBackupCode);
     elements.achievementsModal.querySelectorAll('[data-achievement-filter]').forEach((button) => {
       button.addEventListener('click', () => {
         elements.achievementsModal.querySelectorAll('[data-achievement-filter]').forEach((item) => item.classList.remove('is-selected'));
@@ -642,31 +1155,74 @@ export function initGame() {
       });
     });
     document.querySelectorAll('[data-close-modal]').forEach((button) => button.addEventListener('click', () => closeModal(button.closest('.modal'))));
+    document.querySelectorAll('[data-toggle-panel]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const panel = button.closest('[data-panel]');
+        if (!panel) return;
+        const collapsed = panel.classList.toggle('is-collapsed');
+        button.textContent = collapsed ? '+' : '−';
+        button.setAttribute('aria-expanded', String(!collapsed));
+        button.setAttribute('aria-label', collapsed ? 'Bereich maximieren' : 'Bereich minimieren');
+        requestAnimationFrame(resizeCanvas);
+      });
+    });
     document.querySelectorAll('.dpad-btn').forEach((button) => {
-      button.addEventListener('pointerdown', (event) => { event.preventDefault(); movePlayer(Number(button.dataset.dx), Number(button.dataset.dy)); });
+      const start = (event) => {
+        event.preventDefault();
+        button.setPointerCapture?.(event.pointerId);
+        button.classList.add('is-pressed');
+        startDirectionalHold(Number(button.dataset.dx), Number(button.dataset.dy), 'dpad');
+      };
+      const stop = () => stopDirectionalHold();
+      button.addEventListener('pointerdown', start);
+      button.addEventListener('pointerup', stop);
+      button.addEventListener('pointercancel', stop);
+      button.addEventListener('lostpointercapture', stop);
     });
     elements.canvas.addEventListener('pointerdown', (event) => {
-      game.pointerStart = { x: event.clientX, y: event.clientY };
+      stopDirectionalHold();
+      game.pointerStart = { x: event.clientX, y: event.clientY, direction: null };
       elements.canvas.setPointerCapture?.(event.pointerId);
+    });
+    elements.canvas.addEventListener('pointermove', (event) => {
+      if (!game.pointerStart || game.pointerStart.direction) return;
+      const dx = event.clientX - game.pointerStart.x;
+      const dy = event.clientY - game.pointerStart.y;
+      if (Math.max(Math.abs(dx), Math.abs(dy)) < 18) return;
+      game.pointerStart.direction = Math.abs(dx) > Math.abs(dy) ? [Math.sign(dx), 0] : [0, Math.sign(dy)];
+      startDirectionalHold(...game.pointerStart.direction, 'swipe');
     });
     elements.canvas.addEventListener('pointerup', (event) => {
       if (!game.pointerStart) return;
       const dx = event.clientX - game.pointerStart.x;
       const dy = event.clientY - game.pointerStart.y;
+      const direction = game.pointerStart.direction;
       game.pointerStart = null;
-      if (Math.max(Math.abs(dx), Math.abs(dy)) < 18) return;
-      if (Math.abs(dx) > Math.abs(dy)) movePlayer(Math.sign(dx), 0);
-      else movePlayer(0, Math.sign(dy));
+      if (!direction && Math.max(Math.abs(dx), Math.abs(dy)) >= 18) {
+        startDirectionalHold(Math.abs(dx) > Math.abs(dy) ? Math.sign(dx) : 0, Math.abs(dy) >= Math.abs(dx) ? Math.sign(dy) : 0, 'swipe');
+        window.setTimeout(stopDirectionalHold, 30);
+      } else {
+        stopDirectionalHold();
+      }
     });
+    elements.canvas.addEventListener('pointercancel', () => { game.pointerStart = null; stopDirectionalHold(); });
+    elements.canvas.addEventListener('lostpointercapture', () => { game.pointerStart = null; stopDirectionalHold(); });
     window.addEventListener('keydown', (event) => {
       if (event.target.matches('input, select, textarea')) return;
       const directions = { ArrowUp: [0, -1], w: [0, -1], W: [0, -1], ArrowDown: [0, 1], s: [0, 1], S: [0, 1], ArrowLeft: [-1, 0], a: [-1, 0], A: [-1, 0], ArrowRight: [1, 0], d: [1, 0], D: [1, 0] };
       if (directions[event.key]) {
         event.preventDefault();
-        movePlayer(...directions[event.key]);
+        const [dx, dy] = directions[event.key];
+        if (!game.manualHold || game.manualHold.dx !== dx || game.manualHold.dy !== dy) startDirectionalHold(dx, dy, 'keyboard');
       }
       if (event.key === 'Escape' && game.active) togglePause();
+      if (event.key === 'Enter' && !game.active) audio.play('click');
     });
+    window.addEventListener('keyup', (event) => {
+      if (/^(ArrowUp|ArrowDown|ArrowLeft|ArrowRight|w|a|s|d)$/i.test(event.key)) stopDirectionalHold();
+    });
+    window.addEventListener('blur', stopDirectionalHold);
+    window.addEventListener('pointerup', stopDirectionalHold);
     window.addEventListener('resize', resizeCanvas);
     if (window.ResizeObserver) new ResizeObserver(resizeCanvas).observe(elements.canvasViewport);
   }
@@ -681,6 +1237,7 @@ export function initGame() {
   updateMenuStats();
   showScreen('menu');
   updateTime();
+  if (!getProfile().hasSeenTutorial) openTutorial();
   const initialUnlocked = evaluateAchievements();
   if (initialUnlocked.length > 0) announceAchievements(initialUnlocked);
   animationFrame = requestAnimationFrame(renderLoop);

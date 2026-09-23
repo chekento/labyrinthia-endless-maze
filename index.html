@@ -93,7 +93,7 @@
     .daily-card .button { min-height: 42px; padding: 9px 12px; color: #121021; background: linear-gradient(100deg, #ffc857, #ff9f43); border-color: transparent; font-size: .76rem; font-weight: 900; white-space: nowrap; }
 
     .game-screen { flex-direction: column; background: radial-gradient(circle at 50% -10%, rgba(124,108,255,.12), transparent 40%), var(--bg); }
-    .game-header { min-height: 68px; display: flex; align-items: center; gap: 14px; padding: max(10px, env(safe-area-inset-top)) clamp(12px, 3vw, 30px) 10px; border-bottom: 1px solid rgba(255,255,255,.08); background: rgba(7,9,24,.78); backdrop-filter: blur(14px); z-index: 2; }
+    .game-header { min-height: 68px; display: flex; align-items: center; gap: 10px; padding: max(10px, env(safe-area-inset-top)) clamp(12px, 3vw, 30px) 10px; border-bottom: 1px solid rgba(255,255,255,.08); background: rgba(7,9,24,.86); backdrop-filter: blur(14px); z-index: 2; }
     .icon-button { flex: 0 0 auto; width: 42px; height: 42px; display: grid; place-items: center; border-radius: 12px; cursor: pointer; color: var(--ink); background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1); font-size: 1.15rem; }
     .icon-button:hover { background: rgba(124,108,255,.22); }
     .game-title { min-width: 100px; font-weight: 800; letter-spacing: .08em; font-size: .83rem; text-transform: uppercase; }
@@ -103,9 +103,10 @@
     .hud-progress-top { display: flex; justify-content: space-between; gap: 8px; color: var(--muted); font-size: .68rem; }
     .xp-track { height: 6px; border-radius: 999px; overflow: hidden; background: rgba(255,255,255,.1); }
     .xp-fill { height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, var(--primary), var(--accent)); transition: width .3s ease; }
-    .game-content { min-height: 0; flex: 1; width: min(1440px, 100%); margin: 0 auto; padding: clamp(12px, 2vw, 26px); display: grid; grid-template-columns: minmax(0, 1fr) minmax(230px, 280px); gap: clamp(12px, 2vw, 24px); }
+    .game-content { min-height: 0; flex: 1; width: min(1440px, 100%); margin: 0 auto; padding: clamp(12px, 2vw, 26px); display: grid; grid-template-columns: minmax(0, 1fr) minmax(230px, 280px); gap: clamp(12px, 2vw, 24px); overflow: auto; }
     .maze-panel { min-width: 0; min-height: 0; display: flex; flex-direction: column; gap: 10px; }
-    .maze-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-height: 44px; }
+    .maze-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-height: 44px; padding: 10px 12px; border-radius: 16px; background: rgba(17,21,44,.72); border: 1px solid rgba(166,150,255,.16); }
+    .toolbar-body { display: flex; flex: 1 1 100%; flex-wrap: wrap; align-items: center; gap: 8px; }
     .objective { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1; }
     .objective-dot { width: 11px; height: 11px; flex: 0 0 auto; border-radius: 50%; background: var(--gold); box-shadow: 0 0 16px var(--gold); }
     .objective-text { font-weight: 800; }
@@ -118,8 +119,15 @@
     .maze-footer { display: flex; justify-content: space-between; align-items: center; gap: 10px; color: var(--muted); font-size: .76rem; }
     .timer { color: var(--ink); font-variant-numeric: tabular-nums; font-weight: 800; letter-spacing: .08em; }
     .side-panel { min-height: 0; display: flex; flex-direction: column; gap: 12px; }
-    .side-card { padding: 16px; border-radius: var(--radius); background: var(--panel-soft); border: 1px solid rgba(166,150,255,.18); box-shadow: 0 12px 32px rgba(0,0,0,.16); }
-    .side-card h2 { margin: 0 0 12px; font-size: .76rem; letter-spacing: .13em; text-transform: uppercase; color: var(--muted); }
+    .side-card { padding: 14px; border-radius: var(--radius); background: var(--panel-soft); border: 1px solid rgba(166,150,255,.18); box-shadow: 0 12px 32px rgba(0,0,0,.16); }
+    .side-card-head, .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .side-card h2 { margin: 0; font-size: .76rem; letter-spacing: .13em; text-transform: uppercase; color: var(--muted); }
+    .panel-toggle { width: 28px; height: 28px; flex: 0 0 auto; cursor: pointer; border-radius: 9px; color: var(--ink); background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1); font-weight: 800; }
+    .panel-toggle:hover { background: rgba(124,108,255,.25); }
+    .collapsible-body { max-height: 780px; overflow: hidden; opacity: 1; transition: max-height .24s ease, opacity .2s ease, margin-top .24s ease; }
+    .is-collapsed > .collapsible-body { max-height: 0; margin-top: 0 !important; opacity: 0; pointer-events: none; }
+    .side-card > .collapsible-body { margin-top: 12px; }
+    .motion-telemetry { display: block; margin-top: 5px; color: var(--accent) !important; font-size: .7rem !important; }
     #miniMapCanvas { width: 100%; aspect-ratio: 1 / 1; display: block; border-radius: 12px; background: #080c1e; border: 1px solid rgba(255,255,255,.08); }
     .legend { display: grid; gap: 8px; margin-top: 12px; color: var(--muted); font-size: .75rem; }
     .legend-line { display: flex; align-items: center; gap: 8px; }
@@ -127,6 +135,7 @@
     .legend-dot.player { background: var(--danger); }
     .legend-dot.key { background: var(--gold); }
     .legend-dot.exit { background: var(--accent); }
+    .legend-dot.hole { background: var(--danger); box-shadow: 0 0 7px var(--danger); }
     .control-deck { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-width: 210px; margin: 2px auto 0; }
     .dpad-btn { min-height: 46px; cursor: pointer; border-radius: 12px; color: var(--ink); background: rgba(124,108,255,.14); border: 1px solid rgba(166,150,255,.2); font-size: 1.1rem; touch-action: manipulation; }
     .dpad-btn:hover { background: rgba(124,108,255,.3); }
@@ -134,9 +143,13 @@
     .dpad-btn:nth-child(2) { grid-column: 1; grid-row: 2; }
     .dpad-btn:nth-child(3) { grid-column: 2; grid-row: 2; }
     .dpad-btn:nth-child(4) { grid-column: 3; grid-row: 2; }
-    .side-actions { display: grid; gap: 8px; }
+    .side-actions { display: block; }
+    .side-actions .collapsible-body { display: grid; gap: 8px; }
     .side-actions .button { min-height: 42px; font-size: .84rem; }
     .hint-route { pointer-events: none; opacity: .68; }
+    .game-screen.focus-mode .game-content { grid-template-columns: 1fr; }
+    .game-screen.focus-mode .side-panel { display: none; }
+    .game-screen.focus-mode .canvas-viewport { height: min(78dvh, 900px); max-height: none; }
 
     .modal { display: none; position: fixed; inset: 0; z-index: 10; align-items: center; justify-content: center; padding: max(18px, env(safe-area-inset-top)) 18px max(18px, env(safe-area-inset-bottom)); background: rgba(3,4,13,.78); backdrop-filter: blur(12px); }
     .modal.is-open { display: flex; }
@@ -223,8 +236,8 @@
       .menu-copy { text-align: center; }
       .brand-lockup, .menu-tags { justify-content: center; }
       .menu-intro { margin-left: auto; margin-right: auto; }
-      .game-content { grid-template-columns: 1fr; overflow-y: auto; }
-      .canvas-viewport { flex: 0 0 auto; height: min(62dvh, 620px); max-height: none; }
+      .game-content { grid-template-columns: 1fr; overflow-y: auto; align-content: start; }
+      .canvas-viewport { flex: 0 0 auto; height: min(48dvh, 500px); max-height: none; min-height: 230px; }
       .side-panel { display: grid; grid-template-columns: minmax(150px, .8fr) minmax(170px, 1.2fr); align-items: start; }
       .side-card:first-child { grid-row: span 2; }
       .side-card:last-child { grid-column: 2; }
@@ -241,7 +254,7 @@
       .hud-progress { width: 100px; }
       .hud-progress-top { font-size: .58rem; }
       .game-content { padding: 10px; gap: 10px; }
-      .canvas-viewport { height: min(58dvh, 460px); min-height: 220px; border-radius: 16px; }
+      .canvas-viewport { height: min(46dvh, 430px); min-height: 230px; border-radius: 16px; }
       .side-panel { grid-template-columns: 1fr 1fr; gap: 8px; }
       .side-card { padding: 11px; border-radius: 14px; }
       .side-card h2 { font-size: .65rem; }
@@ -270,7 +283,7 @@
         <div class="menu-tags"><span class="tag">∞ Endless</span><span class="tag">◉ Camera focus</span><span class="tag">⌁ Motion play</span><span class="tag">✦ 1,000 achievements</span></div>
       </div>
       <div class="menu-card">
-        <div class="profile-row"><div><div class="eyebrow">Your expedition</div><div id="menuRank" class="profile-rank">Rang 1</div><div id="menuRankTitle" class="profile-title">Newcomer</div></div><div class="version-pill">v2.1.1 Android-ready</div></div>
+        <div class="profile-row"><div><div class="eyebrow">Your expedition</div><div id="menuRank" class="profile-rank">Rang 1</div><div id="menuRankTitle" class="profile-title">Newcomer</div></div><div class="version-pill">v2.2.0 Android-ready</div></div>
         <div class="stat-grid"><div class="stat-card"><div class="stat-label">Fortschritt</div><div id="menuLevel" class="stat-value">Level 1</div></div><div class="stat-card"><div class="stat-label">Achievements</div><div id="menuAchievements" class="stat-value">0 / 1000</div></div><div class="stat-card"><div class="stat-label">Steuerung</div><div class="stat-value">Touch</div></div></div>
         <div class="daily-card"><div><div class="eyebrow">Daily route</div><strong id="dailyDate">Heute · Level 1</strong><span id="dailyStatus">Ein optionaler Seed für deine tägliche Bestzeit.</span></div><button id="dailyChallengeBtn" class="button">Heute spielen</button></div>
         <div class="menu-actions">
@@ -290,19 +303,20 @@
       <div class="game-title">Labyrinthia<span>Level <span id="currentLevel">1</span></span></div>
       <div class="hud-progress"><div class="hud-progress-top"><span id="hudRank">Rang 1</span><span id="hudXp">0 XP</span></div><div class="xp-track"><div id="hudXpFill" class="xp-fill"></div></div></div>
       <div id="lastInput" class="last-input" aria-live="polite">Bereit</div>
+      <button id="togglePanelsBtn" class="icon-button" aria-label="Spielfeld maximieren">⤢</button>
       <button id="gameSettingsBtn" class="icon-button" aria-label="Einstellungen">⚙</button>
       <button id="pauseBtn" class="icon-button" aria-label="Pause">Ⅱ</button>
     </header>
     <main class="game-content">
       <div class="maze-panel">
-        <div class="maze-toolbar"><div class="objective"><span class="objective-dot"></span><div><div id="objectiveText" class="objective-text">Finde den Schlüssel</div><div class="objective-sub">Die Kamera folgt dir · das Labyrinth bleibt groß</div></div></div><span id="keyStatus" class="chip">Schlüssel fehlt</span><span id="motionStatus" class="chip">Touch / Pfeile</span></div>
+        <div class="maze-toolbar collapsible" data-panel="objective"><div class="panel-head"><div class="objective"><span class="objective-dot"></span><div><div id="objectiveText" class="objective-text">Finde den Schlüssel</div><div class="objective-sub">Kompaktes HUD · tippe − zum Minimieren</div></div></div><button class="panel-toggle" data-toggle-panel="objective" aria-expanded="true" aria-label="Bereich minimieren">−</button></div><div class="toolbar-body collapsible-body"><span id="keyStatus" class="chip">Schlüssel fehlt</span><span id="motionStatus" class="chip">Touch / Pfeile</span><span id="difficultyStatus" class="chip">Warm-up · sicherer Boden</span><span id="savepointStatus" class="chip">Savepoint: Start</span></div></div>
         <div id="canvasViewport" class="canvas-viewport"><canvas id="mazeCanvas" aria-label="Labyrinth-Spielfeld"></canvas><div class="canvas-vignette"></div></div>
         <div class="maze-footer"><span>Swipe, Pfeile oder D-Pad · <span class="muted">ESC pausiert</span></span><span id="levelTimer" class="timer">00:00</span></div>
       </div>
       <aside class="side-panel" aria-label="Spielinformationen">
-        <div class="side-card"><h2>Expedition map</h2><canvas id="miniMapCanvas" aria-label="Mini-Karte des gesamten Labyrinths"></canvas><div class="legend"><div class="legend-line"><span class="legend-dot player"></span>Du</div><div class="legend-line"><span class="legend-dot key"></span>Schlüssel</div><div class="legend-line"><span class="legend-dot exit"></span>Ausgang</div></div></div>
-        <div class="side-card"><h2>Move controls</h2><div class="control-deck"><button class="dpad-btn" data-dx="0" data-dy="-1" aria-label="Nach oben">▲</button><button class="dpad-btn" data-dx="-1" data-dy="0" aria-label="Nach links">◀</button><button class="dpad-btn" data-dx="0" data-dy="1" aria-label="Nach unten">▼</button><button class="dpad-btn" data-dx="1" data-dy="0" aria-label="Nach rechts">▶</button></div></div>
-        <div class="side-card side-actions"><button id="gameSettingsBtn2" class="button">⚙ Spieloptionen</button><button id="pauseBtn2" class="button">Ⅱ Pause</button></div>
+        <div class="side-card collapsible" data-panel="map"><div class="side-card-head"><h2>Expedition map</h2><button class="panel-toggle" data-toggle-panel="map" aria-expanded="true" aria-label="Bereich minimieren">−</button></div><div class="collapsible-body"><canvas id="miniMapCanvas" aria-label="Mini-Karte des gesamten Labyrinths"></canvas><div class="legend"><div class="legend-line"><span class="legend-dot player"></span>Du</div><div class="legend-line"><span class="legend-dot key"></span>Schlüssel</div><div class="legend-line"><span class="legend-dot exit"></span>Ausgang</div><div class="legend-line"><span class="legend-dot hole"></span>Fallloch</div></div></div></div>
+        <div class="side-card collapsible" data-panel="controls"><div class="side-card-head"><h2>Move controls</h2><button class="panel-toggle" data-toggle-panel="controls" aria-expanded="true" aria-label="Bereich minimieren">−</button></div><div class="collapsible-body"><div class="control-deck"><button class="dpad-btn" data-dx="0" data-dy="-1" aria-label="Nach oben">▲</button><button class="dpad-btn" data-dx="-1" data-dy="0" aria-label="Nach links">◀</button><button class="dpad-btn" data-dx="0" data-dy="1" aria-label="Nach unten">▼</button><button class="dpad-btn" data-dx="1" data-dy="0" aria-label="Nach rechts">▶</button></div></div></div>
+        <div class="side-card side-actions collapsible" data-panel="actions"><div class="side-card-head"><h2>Expedition</h2><button class="panel-toggle" data-toggle-panel="actions" aria-expanded="true" aria-label="Bereich minimieren">−</button></div><div class="collapsible-body"><button id="gameSettingsBtn2" class="button">⚙ Spieloptionen</button><button id="pauseBtn2" class="button">Ⅱ Pause</button></div></div>
       </aside>
     </main>
   </section>
@@ -312,7 +326,7 @@
   <div id="settingsModal" class="modal" aria-hidden="true"><div class="modal-card"><div class="modal-head"><div><div class="eyebrow">Game settings</div><h2>Spieloptionen</h2><p>Konfiguriere deine Steuerung für lange Expeditionen.</p></div><button id="closeSettingsModal" class="modal-close" aria-label="Schließen">×</button></div>
     <div class="settings-section"><h3 class="settings-section-title">Spielgefühl</h3><p class="settings-section-copy">Wähle, wie viel Orientierung und Druck du während eines Runs möchtest.</p></div>
     <div class="form-row"><div class="form-copy"><strong>Komfort-Preset</strong><span id="comfortModeDescription">Die ausgewogene Labyrinthia-Erfahrung.</span></div><select id="comfortMode" aria-label="Komfort-Preset"><option value="relaxed">Relaxed</option><option value="standard">Standard</option><option value="focused">Focused</option></select></div>
-    <div class="form-row"><div class="form-copy"><strong>Gerätesensoren / Kugelbrett-Steuerung</strong><span>Neige dein Android-Gerät. Die Spielerfigur rollt in die stärkste Neigungsrichtung.</span></div><input id="motionToggle" type="checkbox" aria-label="Sensorsteuerung aktivieren"></div>
+    <div class="form-row"><div class="form-copy"><strong>Gerätesensoren / Kugelbrett-Steuerung</strong><span>Neige dein Android-Gerät. Mehr Neigung baut physikalisch mehr Rollgeschwindigkeit auf.</span><span id="motionTelemetry" class="motion-telemetry">Sensor wartet · aktiviere die Kugelbrett-Steuerung</span></div><input id="motionToggle" type="checkbox" aria-label="Sensorsteuerung aktivieren"></div>
     <div class="form-row"><div class="form-copy"><strong>Sensor-Empfindlichkeit</strong><span>Wie stark eine Neigung die nächste Bewegung auslöst.</span></div><div style="display:flex;align-items:center;gap:8px"><input id="motionSensitivity" type="range" min="0.5" max="5" step="0.1" value="2.2" aria-label="Sensor-Empfindlichkeit"><span id="motionSensitivityValue" class="range-value">2.2×</span></div></div>
     <div class="form-row"><div class="form-copy"><strong>Steuerung invertieren</strong><span>Dreht die Neigungsrichtung für dein bevorzugtes Spielgefühl um.</span></div><input id="invertMotion" type="checkbox" aria-label="Sensorsteuerung invertieren"></div>
     <div class="form-row"><div class="form-copy"><strong>Haptisches Feedback</strong><span>Kurze Vibration bei Bewegung, Schlüssel und Abschluss.</span></div><input id="hapticsToggle" type="checkbox" aria-label="Haptisches Feedback aktivieren"></div>

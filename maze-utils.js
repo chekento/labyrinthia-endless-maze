@@ -9,6 +9,16 @@ export function createSeed(level = 1, salt = Date.now()) {
   return value >>> 0;
 }
 
+export function createDailySeed(date = new Date()) {
+  const key = typeof date === 'string' ? date : date.toISOString().slice(0, 10);
+  let hash = 2166136261;
+  for (const character of key) {
+    hash ^= character.charCodeAt(0);
+    hash = Math.imul(hash, 16777619);
+  }
+  return createSeed(777, hash >>> 0);
+}
+
 function mulberry32(seed) {
   let value = seed >>> 0;
   return () => {
@@ -94,6 +104,95 @@ export function chooseKey(maze, cols, rows, exit, seed = 1) {
   return candidates.length > 0 ? candidates[Math.floor(random() * candidates.length)] : maze[Math.max(1, rows - 3)][Math.max(1, cols - 3)];
 }
 
+export function getLevelDifficulty(currentLevel) {
+  const level = Math.max(1, Math.floor(Number(currentLevel) || 1));
+  if (level <= 2) {
+    return {
+      tier: 1,
+      label: 'Warm-up · sicherer Boden',
+      description: 'Keine Falllöcher · erst einmal den Raum lesen.',
+      holeCount: 0,
+      clusterSize: 0,
+      holeRadius: 0
+    };
+  }
+  const tier = Math.min(6, 2 + Math.floor((level - 3) / 3));
+  const labels = [
+    'Falllöcher · klein',
+    'Falllöcher · verstreut',
+    'Falllöcher · Cluster',
+    'Falllöcher · große Cluster',
+    'Falllöcher · Prüfung'
+  ];
+  return {
+    tier,
+    label: labels[Math.min(labels.length - 1, tier - 2)],
+    description: tier <= 2 ? 'Kleine Löcher abseits der sicheren Route.' : 'Löcher wachsen und bilden gefährliche Gruppen.',
+    holeCount: Math.min(72, 3 + Math.floor(level * 1.9) + Math.floor(level / 5) * 3),
+    clusterSize: Math.min(5, 1 + Math.floor((level - 3) / 4)),
+    holeRadius: Math.min(0.43, 0.22 + Math.floor((level - 3) / 4) * 0.04)
+  };
+}
+
+export function applyLevelHazards(maze, cols, rows, currentLevel, seed, start, key, exit) {
+  const difficulty = getLevelDifficulty(currentLevel);
+  const holes = [];
+  if (difficulty.holeCount === 0) return { difficulty, holes };
+
+  const random = mulberry32((seed ^ 0x51f15e77) >>> 0);
+  const routeToKey = solveMaze(maze, start, key, cols, rows);
+  const routeToExit = solveMaze(maze, key, exit, cols, rows);
+  // Both objective routes are protected before hazards are added. This keeps
+  // every generated level winnable even as hole density increases.
+  const protectedCells = new Set([...routeToKey, ...routeToExit].map((point) => `${point.x},${point.y}`));
+  const candidates = [];
+  for (let y = 1; y < rows - 1; y += 1) {
+    for (let x = 1; x < cols - 1; x += 1) {
+      const cell = maze[y][x];
+      if (protectedCells.has(`${x},${y}`) || (x === start.x && y === start.y) || (x === exit.x && y === exit.y)) continue;
+      candidates.push(cell);
+    }
+  }
+
+  // Shuffle deterministically, then grow short clusters only through cells
+  // that are not on either guaranteed route.
+  for (let i = candidates.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(random() * (i + 1));
+    [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+  }
+  const selected = new Set();
+  const addHole = (cell) => {
+    const id = `${cell.x},${cell.y}`;
+    if (selected.has(id) || protectedCells.has(id)) return false;
+    selected.add(id);
+    cell.hazard = 'hole';
+    cell.holeRadius = difficulty.holeRadius;
+    holes.push(cell);
+    return true;
+  };
+  for (const seedCell of candidates) {
+    if (holes.length >= difficulty.holeCount) break;
+    if (selected.has(`${seedCell.x},${seedCell.y}`)) continue;
+    addHole(seedCell);
+    const frontier = [seedCell];
+    while (frontier.length > 0 && holes.length < difficulty.holeCount && frontier.length < difficulty.clusterSize) {
+      const current = frontier.shift();
+      const neighbors = [
+        maze[current.y - 1]?.[current.x],
+        maze[current.y]?.[current.x + 1],
+        maze[current.y + 1]?.[current.x],
+        maze[current.y]?.[current.x - 1]
+      ].filter(Boolean).sort(() => random() - 0.5);
+      for (const neighbor of neighbors) {
+        if (holes.length >= difficulty.holeCount || frontier.length >= difficulty.clusterSize) break;
+        if (Math.abs(neighbor.x - seedCell.x) + Math.abs(neighbor.y - seedCell.y) > difficulty.clusterSize) continue;
+        if (addHole(neighbor)) frontier.push(neighbor);
+      }
+    }
+  }
+  return { difficulty, holes };
+}
+
 export function getUnvisitedNeighbors(cell, maze, cols, rows) {
   const neighbors = [];
   const { x, y } = cell;
@@ -173,7 +272,7 @@ function getValidNeighborsForAI(cell, maze, cols, rows) {
   if (cell.x < cols - 1 && !maze[cell.y][cell.x].walls[1]) neighbors.push(maze[cell.y][cell.x + 1]);
   if (cell.y < rows - 1 && !maze[cell.y][cell.x].walls[2]) neighbors.push(maze[cell.y + 1][cell.x]);
   if (cell.x > 0 && !maze[cell.y][cell.x].walls[3]) neighbors.push(maze[cell.y][cell.x - 1]);
-  return neighbors.filter((neighbor) => neighbor.x > 0 && neighbor.x < cols - 1 && neighbor.y > 0 && neighbor.y < rows - 1);
+  return neighbors.filter((neighbor) => neighbor.x > 0 && neighbor.x < cols - 1 && neighbor.y > 0 && neighbor.y < rows - 1 && neighbor.hazard !== 'hole');
 }
 
 function reconstructPath(previous, endCell) {

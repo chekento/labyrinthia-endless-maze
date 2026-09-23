@@ -1,21 +1,21 @@
-# Labyrinthia APK · v2.1.1
+# Labyrinthia APK · v2.2.0
 
 The front-page banner always points here so the APK call-to-action has one stable, version-aware destination.
 
 ## Current channel
 
-**v2.1.1 · Android-ready · Pre-Alpha**
+**v2.2.0 · Android-ready · Pre-Alpha**
 
 The repository contains the Android Studio project, the complete offline web game and a compiled debug APK for device testing.
 
 ## Current download
 
-[Download Labyrinthia v2.1.1 debug APK](./downloads/Labyrinthia-v2.1.1-debug.apk)
+[Download Labyrinthia v2.2.0 debug APK](./downloads/Labyrinthia-v2.2.0-debug.apk)
 
 - Package: `cloud.kosch.labyrinthia`
-- Version: `2.1.1` (`versionCode 22`)
+- Version: `2.2.0` (`versionCode 23`)
 - Minimum Android version: Android 6.0 / API 23
-- SHA-256: `a0c69065bc5839af076815f69a7afe622e05bbf7d8a7f6d79c4a97d270076db6`
+- SHA-256: `d251e73d02628644ad5b2da64f2b80aa0ff0f3df2a5dfdb90feaef1d0c2abac0`
 
 This APK is debug-signed for installation and UX testing. It is not the final Play Store-signed AAB. The banner and this page remain the stable entry point; future builds can replace the direct download without changing the front-page URL.
 

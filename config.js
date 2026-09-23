@@ -1,5 +1,5 @@
 export const CONFIG = {
-  appVersion: '2.1.1',
+  appVersion: '2.2.0',
   maxRank: 1000,
   achievementCount: 1000,
   cellSize: 36,
@@ -45,11 +45,13 @@ export const CONFIG = {
     danger: '#ff6b8a'
   },
   physics: {
-    friction: 0.84,
-    maxVelocity: 2.8,
-    acceleration: 1.25,
-    movementThreshold: 0.18,
+    // Values are normalized from the accelerometer's m/s² stream. A stronger
+    // tilt therefore adds more velocity instead of merely changing direction.
+    friction: 0.91,
+    maxVelocity: 3.4,
+    acceleration: 7.5,
+    movementThreshold: 0.055,
     tiltSensitivity: 2.2,
-    deadzone: 0.16
+    deadzone: 0.075
   }
 };

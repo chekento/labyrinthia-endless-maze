@@ -1,5 +1,22 @@
 # Changelog
 
+## v2.2.0 · Physical roll and fair hazards · 2026-09-23
+
+### Added
+
+- Accelerometer input now normalizes gravity and builds physical roll velocity from tilt magnitude.
+- Held swipes, D-pad presses and keyboard holds repeat movement until release or an obstacle.
+- Difficulty tiers start without holes, then add protected, solvable fall-hole routes with growing size and clusters.
+- Start and key tiles act as savepoints; holes return the player to the latest savepoint and preserve the key state.
+- Rolling-ball easing, rotating seam, sphere shading, fall feedback and hazard minimap markers.
+- Compact HUD with individual minimize controls for objective, map, controls and expedition actions, plus a focus-mode maximize button.
+
+### Verification
+
+- APK package: `cloud.kosch.labyrinthia`
+- Version: `2.2.0` / `versionCode 23`
+- SHA-256: `d251e73d02628644ad5b2da64f2b80aa0ff0f3df2a5dfdb90feaef1d0c2abac0`
+
 ## v2.1.1 · Signature icon pass · 2026-09-23
 
 ### Added
