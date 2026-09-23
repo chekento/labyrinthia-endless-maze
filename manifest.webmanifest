@@ -1,0 +1,20 @@
+{
+  "name": "Labyrinthia · The Endless Maze",
+  "short_name": "Labyrinthia",
+  "description": "An endless procedural maze adventure by KoSch.",
+  "lang": "de",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "portrait",
+  "background_color": "#070918",
+  "theme_color": "#070918",
+  "icons": [
+    {
+      "src": "./Gemini_Generated_Image_5kaosm5kaosm5kao.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
