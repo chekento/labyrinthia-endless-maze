@@ -13,14 +13,19 @@ export class MotionPhysics {
     this.calibration = { x: 0, y: 0, z: 0 };
     this.calibrated = false;
     this.lastUpdate = typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now();
-    this.orientation = typeof window === 'undefined' ? 0 : window.orientation || 0;
+    this.orientation = this.readOrientation();
 
     if (typeof window !== 'undefined') {
       window.addEventListener('orientationchange', () => {
-        this.orientation = window.orientation || 0;
+        this.orientation = this.readOrientation();
         this.reset();
       });
     }
+  }
+
+  readOrientation() {
+    if (typeof window === 'undefined') return 0;
+    return Number(window.screen?.orientation?.angle ?? window.orientation ?? 0) || 0;
   }
 
   setSensitivity(value) {
@@ -58,11 +63,12 @@ export class MotionPhysics {
     if (Math.abs(relativeY) < this.deadzone) relativeY = 0;
 
     relativeX = -relativeX;
-    if (this.orientation === 90) {
+    const orientation = ((this.orientation % 360) + 360) % 360;
+    if (orientation === 90) {
       [relativeX, relativeY] = [-relativeY, relativeX];
-    } else if (this.orientation === -90) {
+    } else if (orientation === 270) {
       [relativeX, relativeY] = [relativeY, -relativeX];
-    } else if (this.orientation === 180 || this.orientation === -180) {
+    } else if (orientation === 180) {
       relativeX = -relativeX;
       relativeY = -relativeY;
     }

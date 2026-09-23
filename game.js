@@ -222,7 +222,7 @@ export function initGame() {
     fallFlashUntil: 0,
     manualHold: null,
     manualHoldTimer: null,
-    motionTelemetry: { intensity: 0, x: 0, y: 0 }
+    motionTelemetry: { intensity: 0, x: 0, y: 0, received: false, source: 'none' }
   };
 
   let animationFrame = null;
@@ -438,9 +438,13 @@ export function initGame() {
       elements.motionTelemetry.textContent = 'Sensor wartet · aktiviere die Kugelbrett-Steuerung';
       return;
     }
+    if (!game.motionTelemetry.received) {
+      elements.motionTelemetry.textContent = 'Sensor aktiviert · warte auf Android-Messwerte …';
+      return;
+    }
     elements.motionTelemetry.textContent = intensity > 0
-      ? `Neigung ${intensity}% · Geschwindigkeit wird physikalisch aufgebaut`
-      : 'Waagerecht · bereit zum Rollen';
+      ? `Neigung ${intensity}% · Geschwindigkeit wird physikalisch aufgebaut · ${game.motionTelemetry.source}`
+      : `Waagerecht · bereit zum Rollen · ${game.motionTelemetry.source}`;
   }
 
   function updateHud() {
@@ -455,7 +459,9 @@ export function initGame() {
     elements.keyStatus.classList.toggle('is-complete', game.hasKey);
     elements.objectiveText.textContent = game.hasKey ? 'Finde den Ausgang' : 'Finde den Schlüssel';
     elements.timer.textContent = formatTime(elapsed);
-    elements.motionStatus.textContent = motionControls.isEnabled() ? 'Sensorsteuerung aktiv' : 'Touch / Pfeile';
+    elements.motionStatus.textContent = !motionControls.isEnabled()
+      ? 'Touch / Pfeile'
+      : game.motionTelemetry.received ? 'Sensorsteuerung aktiv' : 'Sensor wartet …';
     elements.motionStatus.classList.toggle('is-active', motionControls.isEnabled());
     if (elements.difficultyStatus) {
       elements.difficultyStatus.textContent = game.difficulty?.label || 'Warm-up';
@@ -1086,7 +1092,10 @@ export function initGame() {
     document.getElementById('closeSettingsModal').addEventListener('click', () => closeModal(elements.settingsModal));
     document.getElementById('closeAchievementsModal').addEventListener('click', () => closeModal(elements.achievementsModal));
     elements.tutorialModal.addEventListener('click', (event) => { if (event.target === elements.tutorialModal) finishTutorial(); });
-    document.getElementById('calibrateMotionBtn').addEventListener('click', () => { motionControls.calibrate(); announce('Sensoren kalibriert. Halte das Gerät jetzt waagerecht.', 'success'); });
+    document.getElementById('calibrateMotionBtn').addEventListener('click', () => {
+      const calibrated = motionControls.calibrate();
+      announce(calibrated ? 'Sensoren kalibriert. Halte das Gerät jetzt waagerecht und neige es dann.' : 'Noch keine Messwerte. Aktiviere die Sensoren und bewege das Gerät kurz.', calibrated ? 'success' : 'warning');
+    });
     document.getElementById('resetProgressBtn').addEventListener('click', () => {
       if (!window.confirm('Wirklich alle Level-, Rang- und Achievement-Fortschritte löschen?')) return;
       resetAllProgress();

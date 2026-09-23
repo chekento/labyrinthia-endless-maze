@@ -15,9 +15,9 @@
 
 ### An endless procedural maze adventure by KoSch
 
-<a href="./APK-DOWNLOAD.md"><img src="./assets/apk-download-banner.svg" alt="Download the current Labyrinthia APK build v2.2.0" width="920" /></a>
+<a href="./APK-DOWNLOAD.md"><img src="./assets/apk-download-banner.svg" alt="Download the current Labyrinthia APK build v2.2.1" width="920" /></a>
 
-<sub>The banner is versioned to <strong>v2.2.0</strong> and points to one stable APK build page.</sub>
+<sub>The banner is versioned to <strong>v2.2.1</strong> and points to one stable APK build page.</sub>
 
 </div>
 
@@ -26,12 +26,12 @@
 ## Download and play
 
 - **APK build page:** click the banner above or open [`APK-DOWNLOAD.md`](./APK-DOWNLOAD.md). It is the stable destination for the current APK version.
-- **Direct APK:** download the current debug-signed Android build [`Labyrinthia-v2.2.0-debug.apk`](./downloads/Labyrinthia-v2.2.0-debug.apk) for device testing.
+- **Direct APK:** download the current debug-signed Android build [`Labyrinthia-v2.2.1-debug.apk`](./downloads/Labyrinthia-v2.2.1-debug.apk) for device testing.
 - **Download the source:** use GitHub's **Code → Download ZIP** or clone this repository. The repository stays source-first and the Android-ready project lives in [`android/`](./android/).
 - **Browser preview:** serve the repository over HTTP(S), then open `index.html`.
 - **Android Studio:** open the `android/` project and build the debug APK or a signed AAB.
 
-> **APK status:** v2.2.0 is the current Android-ready Pre-Alpha build. The repository includes a debug-signed APK for testing; it is not the final Play Store-signed AAB.
+> **APK status:** v2.2.1 is the current Android-ready Pre-Alpha build. The repository includes a debug-signed APK for testing; it is not the final Play Store-signed AAB.
 
 ## Why the game should stay fun for a long time
 
@@ -137,7 +137,7 @@ The design rules are deliberately strict:
 - reward mastery without interrupting the maze flow;
 - keep the core game local and privacy-friendly.
 
-## Mechanics and GUI upgrades included in v2.2.0
+## Mechanics and GUI upgrades included in v2.2.1
 
 The newest playable build adds the requested physical and readability pass:
 
@@ -165,7 +165,7 @@ Open `android/` in Android Studio with an Android SDK installed, or run `./gradl
 
 ## Development status
 
-The current build is **v2.2.0 Android-ready / Pre-Alpha**. The next quality passes should focus on:
+The current build is **v2.2.1 Android-ready / Pre-Alpha**. The next quality passes should focus on:
 
 - device-by-device sensor tuning and accessibility testing;
 - movable maze segments, multiple keys and intermediate savepoint doors;

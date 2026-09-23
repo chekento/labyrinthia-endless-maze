@@ -1,5 +1,5 @@
 export const CONFIG = {
-  appVersion: '2.2.0',
+  appVersion: '2.2.1',
   maxRank: 1000,
   achievementCount: 1000,
   cellSize: 36,

@@ -1,5 +1,20 @@
 # Changelog
 
+## v2.2.1 · Sensor bridge fallback · 2026-09-24
+
+### Fixed
+
+- Added a DeviceOrientation fallback for Android/WebView builds where the browser motion event stream is unavailable.
+- Sensor samples now report their source and waiting state in the settings UI.
+- Screen rotation uses the modern `screen.orientation.angle` API when available.
+- Added a distinct version code so the sensor repair installs as an update over v2.2.0.
+
+### Verification
+
+- APK package: `cloud.kosch.labyrinthia`
+- Version: `2.2.1` / `versionCode 24`
+- SHA-256: `bbf5b3014f19da8ab0c7bd6f9e34f3d5960a7d4dcd2fc814c53b7af1ce08cd13`
+
 ## v2.2.0 · Physical roll and fair hazards · 2026-09-23
 
 ### Added
