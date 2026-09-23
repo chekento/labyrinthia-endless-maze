@@ -11,9 +11,15 @@
   "theme_color": "#070918",
   "icons": [
     {
-      "src": "./labyrinthia-keyart.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "./assets/icons/labyrinthia-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./assets/icons/labyrinthia-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]

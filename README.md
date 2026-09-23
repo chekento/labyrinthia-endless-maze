@@ -11,11 +11,13 @@
 
 <img src="./labyrinthia-keyart.svg" alt="Labyrinthia key art" width="760" />
 
+<img src="./assets/icons/labyrinthia-icon-512.png" alt="Labyrinthia app icon" width="160" />
+
 ### An endless procedural maze adventure by KoSch
 
-<a href="./APK-DOWNLOAD.md"><img src="./assets/apk-download-banner.svg" alt="Download the current Labyrinthia APK build v2.0.0" width="920" /></a>
+<a href="./APK-DOWNLOAD.md"><img src="./assets/apk-download-banner.svg" alt="Download the current Labyrinthia APK build v2.1.1" width="920" /></a>
 
-<sub>The banner is versioned to <strong>v2.0.0</strong> and points to one stable APK build page.</sub>
+<sub>The banner is versioned to <strong>v2.1.1</strong> and points to one stable APK build page.</sub>
 
 </div>
 
@@ -23,12 +25,13 @@
 
 ## Download and play
 
-- **APK build page:** click the banner above or open [`APK-DOWNLOAD.md`](./APK-DOWNLOAD.md). It is the stable destination for the current APK version and will point to the latest GitHub release once the first compiled APK is published.
+- **APK build page:** click the banner above or open [`APK-DOWNLOAD.md`](./APK-DOWNLOAD.md). It is the stable destination for the current APK version.
+- **Direct APK:** download the current debug-signed Android build [`Labyrinthia-v2.1.1-debug.apk`](./downloads/Labyrinthia-v2.1.1-debug.apk) for device testing.
 - **Download the source:** use GitHub's **Code → Download ZIP** or clone this repository. The repository stays source-first and the Android-ready project lives in [`android/`](./android/).
 - **Browser preview:** serve the repository over HTTP(S), then open `index.html`.
 - **Android Studio:** open the `android/` project and build the debug APK or a signed AAB.
 
-> **APK status:** v2.0.0 is the current Android-ready Pre-Alpha source. A compiled APK is not published in the repository yet; the banner deliberately links to the versioned build page instead of pretending that a binary exists.
+> **APK status:** v2.1.1 is the current Android-ready Pre-Alpha build. The repository includes a debug-signed APK for testing; it is not the final Play Store-signed AAB.
 
 ## Why the game should stay fun for a long time
 
@@ -134,7 +137,9 @@ The design rules are deliberately strict:
 - reward mastery without interrupting the maze flow;
 - keep the core game local and privacy-friendly.
 
-## Ten GUI / UX upgrades for the next quality pass
+## Ten GUI / UX upgrades included in v2.1.1
+
+All ten improvements are now implemented in the playable build, not just planned for the front page:
 
 1. **30-second first-run tutorial:** teach swipe, D-pad, key and exit with one tiny guaranteed maze before the endless loop begins.
 2. **Comfort presets:** offer Relaxed, Standard and Focused modes with different timers, hint strength and maze pressure.
@@ -156,14 +161,13 @@ The `android/` folder contains a native WebView wrapper. It:
 - exposes the Android accelerometer to the web game through a small native bridge;
 - keeps the web files at the repository root as the single source of truth.
 
-Open `android/` in Android Studio with an Android SDK installed, then build `assembleDebug` for testing or a signed release AAB for Play Console. Keep signing keys and upload credentials outside this public repository.
+Open `android/` in Android Studio with an Android SDK installed, or run `./gradlew assembleDebug` from `android/` for a reproducible test build. Keep signing keys and upload credentials outside this public repository.
 
 ## Development status
 
-The current foundation is **v2.0.0 Android-ready / Pre-Alpha**. The next quality passes should focus on:
+The current build is **v2.1.1 Android-ready / Pre-Alpha**. The next quality passes should focus on:
 
 - device-by-device sensor tuning and accessibility testing;
-- sound, music and stronger moment-to-moment feedback;
 - additional maze modifiers and fair challenge variants;
 - device performance profiling on very large levels;
 - signed AAB preparation and Play Store listing assets.

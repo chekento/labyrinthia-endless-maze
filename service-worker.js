@@ -1,4 +1,4 @@
-const CACHE_NAME = 'labyrinthia-v2.0.0';
+const CACHE_NAME = 'labyrinthia-v2.1.1';
 const APP_SHELL = [
   './',
   './index.html',
@@ -7,9 +7,13 @@ const APP_SHELL = [
   './maze-utils.js',
   './motion-physics.js',
   './motion-controls.js',
+  './audio.js',
   './game.js',
   './manifest.webmanifest',
-  './labyrinthia-keyart.svg'
+  './labyrinthia-keyart.svg',
+  './assets/icons/labyrinthia-icon-192.png',
+  './assets/icons/labyrinthia-icon-512.png',
+  './assets/generated/key-and-exit.jpg'
 ];
 
 self.addEventListener('install', (event) => {

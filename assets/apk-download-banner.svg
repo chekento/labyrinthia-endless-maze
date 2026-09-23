@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 420" role="img" aria-labelledby="title desc">
-  <title id="title">Download Labyrinthia APK v2.0.0</title>
+  <title id="title">Download Labyrinthia APK v2.1.1</title>
   <desc id="desc">A dark neon maze banner with a call to action for the Android pre-alpha build.</desc>
   <defs>
     <linearGradient id="shade" x1="0" x2="1">
@@ -27,7 +27,7 @@
   <rect x="72" y="286" width="350" height="70" rx="35" fill="url(#pill)"/>
   <g font-family="Inter,Arial,sans-serif" fill="#06101f">
     <text x="108" y="316" font-size="15" font-weight="900" letter-spacing="2">DOWNLOAD APK</text>
-    <text x="108" y="341" font-size="21" font-weight="900">v2.0.0 · Android-ready</text>
+    <text x="108" y="341" font-size="21" font-weight="900">v2.1.1 · Android-ready</text>
   </g>
   <text x="455" y="329" font-family="Inter,Arial,sans-serif" font-size="16" font-weight="700" fill="#dce5ff">Open the current build page →</text>
   <rect x="0.75" y="0.75" width="1278.5" height="418.5" rx="24" fill="none" stroke="#70f4df" stroke-opacity=".35" stroke-width="1.5"/>

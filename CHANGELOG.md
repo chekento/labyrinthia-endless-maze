@@ -1,10 +1,48 @@
 # Changelog
 
+## v2.1.1 · Signature icon pass · 2026-09-23
+
+### Added
+
+- New premium Labyrinthia launcher icon: a luminous maze portal with a gold core, cyan route and violet dimensional frame.
+- Android density-specific launcher assets for mdpi through xxxhdpi, including round-icon variants.
+- Matching PWA, favicon, Apple touch icon and in-game main-menu brand mark.
+- Rebuilt debug APK with the new icon as the current installable build.
+
+### Verification
+
+- APK package: `cloud.kosch.labyrinthia`
+- Version: `2.1.1` / `versionCode 22`
+- SHA-256: `a0c69065bc5839af076815f69a7afe622e05bbf7d8a7f6d79c4a97d270076db6`
+
+## v2.1.0 · Complete UX and graphics pass · 2026-09-23
+
+### Added
+
+- First-run tutorial with a short, readable onboarding path for swipe, D-pad, key and exit.
+- Relaxed, Standard and Focused comfort modes with route hints and pressure tuning.
+- Offline daily challenge seed with a shareable date/seed token.
+- Post-run recap with time, moves, wall bumps, route length, key detour and next target.
+- Input safety feedback, last-input status, haptics-ready motion flow and reliable touch locking.
+- High contrast, colour-blind-safe, reduced-motion, large-text and left-handed layouts.
+- Camera follow strength, minimap zoom and objective-label controls for large mazes.
+- Local Web Audio feedback for movement, walls, keys, exits, achievements and rank-ups, plus music/SFX sliders.
+- Achievement collection summaries with a “next easiest” target across all 1,000 achievements.
+- Local export/import backup code for progression portability.
+- Compiled debug APK `Labyrinthia-v2.1.0-debug.apk` with a reproducible Gradle wrapper and GitHub Actions build.
+- Further visual polish: generated 16:9 marketing art, key-art menu backdrop, animated player feedback, route hints and color-safe palettes.
+
+### Verification
+
+- APK package: `cloud.kosch.labyrinthia`
+- Version: `2.1.0` / `versionCode 21`
+- SHA-256: `4df0ac06ddb1ef2138169add1b2af96736e51bb17d8576be692874e3ce2d8d9a`
+
 ## Front-page marketing pass · 2026-09-23
 
 ### Added
 
-- Versioned APK download banner for v2.0.0 with one stable build-page destination.
+- Versioned APK download banner for v2.1.0 with one stable build-page destination.
 - Five generated 16:9 marketing motifs for camera focus, tilt controls, route planning, minimap strategy and level completion.
 - Five feature illustrations for camera readability, motion controls, progression, achievements and offline play.
 - Six 16:9 in-game product screenshots with an accessible swipe/keyboard sliderwheel in `docs/sliderwheel.html`.
