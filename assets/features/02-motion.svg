@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" role="img" aria-labelledby="title desc">
+  <title id="title">Motion controls for Labyrinthia</title>
+  <desc id="desc">A phone tilted over a maze board illustrates accelerometer controls.</desc>
+  <defs>
+    <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#110c21"/><stop offset="1" stop-color="#26163d"/></linearGradient>
+    <linearGradient id="edge"><stop stop-color="#ffc857"/><stop offset="1" stop-color="#ff6b8a"/></linearGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="15"/></filter>
+  </defs>
+  <rect width="960" height="600" rx="32" fill="url(#bg)"/>
+  <circle cx="645" cy="245" r="150" fill="#ffc857" opacity=".12" filter="url(#glow)"/>
+  <g transform="translate(590 92) rotate(12 115 190)">
+    <rect x="0" y="0" width="230" height="390" rx="34" fill="#0b1024" stroke="#ffc857" stroke-width="7"/>
+    <rect x="18" y="44" width="194" height="290" rx="18" fill="#111b3b"/>
+    <path d="M34 106H96V72H145V134H194M34 212H76V168H130V256H194M52 300H111V268H165" fill="none" stroke="#36e0c5" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="104" cy="204" r="20" fill="#7c6cff" stroke="#f3f6ff" stroke-width="5"/>
+    <circle cx="115" cy="27" r="7" fill="#ffc857"/>
+    <rect x="84" y="357" width="62" height="7" rx="4" fill="#6b739b"/>
+  </g>
+  <path d="M530 450C470 430 420 380 390 320" fill="none" stroke="url(#edge)" stroke-width="8" stroke-linecap="round"/>
+  <path d="M391 319l-2 33 27-21" fill="#ffc857"/>
+  <g font-family="Inter,Arial,sans-serif" fill="#f3f6ff">
+    <text x="58" y="107" font-size="17" font-weight="900" letter-spacing="3" fill="#ffc857">OPTIONAL SENSOR MODE</text>
+    <text x="55" y="183" font-size="44" font-weight="900">TILT TO ROLL</text>
+    <text x="58" y="230" font-size="20" fill="#c8c1df">Calibrate. Tilt. Find your line.</text>
+    <text x="58" y="570" font-size="27" font-weight="900">LIKE A BALL BOARD</text>
+    <text x="60" y="536" font-size="17" fill="#c8c1df">Sensitivity and inversion stay in your hands</text>
+  </g>
+  <rect x=".75" y=".75" width="958.5" height="598.5" rx="31" fill="none" stroke="#ffc857" stroke-opacity=".5" stroke-width="1.5"/>
+</svg>

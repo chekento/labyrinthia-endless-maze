@@ -13,15 +13,22 @@
 
 ### An endless procedural maze adventure by KoSch
 
+<a href="./APK-DOWNLOAD.md"><img src="./assets/apk-download-banner.svg" alt="Download the current Labyrinthia APK build v2.0.0" width="920" /></a>
+
+<sub>The banner is versioned to <strong>v2.0.0</strong> and points to one stable APK build page.</sub>
+
 </div>
 
 > **Development status — important:** Labyrinthia is an experimental **Pre-Alpha**. It is playable and Android-ready, but it is not yet a finished Play Store release. Expect balancing changes, new visual polish and further device testing.
 
 ## Download and play
 
-- **Download the source:** use GitHub's **Code → Download ZIP** or clone this repository. The complete Android-ready package is maintained in the linked Library artifact while the repository stays source-first.
+- **APK build page:** click the banner above or open [`APK-DOWNLOAD.md`](./APK-DOWNLOAD.md). It is the stable destination for the current APK version and will point to the latest GitHub release once the first compiled APK is published.
+- **Download the source:** use GitHub's **Code → Download ZIP** or clone this repository. The repository stays source-first and the Android-ready project lives in [`android/`](./android/).
 - **Browser preview:** serve the repository over HTTP(S), then open `index.html`.
 - **Android Studio:** open the `android/` project and build the debug APK or a signed AAB.
+
+> **APK status:** v2.0.0 is the current Android-ready Pre-Alpha source. A compiled APK is not published in the repository yet; the banner deliberately links to the versioned build page instead of pretending that a binary exists.
 
 ## Why the game should stay fun for a long time
 
@@ -34,6 +41,42 @@ Labyrinthia is built around a simple loop that remains readable even as the chal
 5. Earn XP, rise through 1,000 ranks and unlock one of 1,000 persistent achievements.
 
 The maze can extend far beyond the screen. Higher difficulty changes the scale of the world, not the readability of the player character.
+
+## Visual product preview
+
+The front page is designed like a small Play Store product page: one clear download action, a feature story and a six-screen sliderwheel. GitHub renders the linked strip below directly; the full swipeable version is available in [`docs/sliderwheel.html`](./docs/sliderwheel.html).
+
+### What makes the loop feel good
+
+<table>
+  <tr>
+    <td align="center"><a href="./assets/features/01-camera.svg"><img src="./assets/features/01-camera.svg" alt="Player-centred camera" width="285" /></a></td>
+    <td align="center"><a href="./assets/features/02-motion.svg"><img src="./assets/features/02-motion.svg" alt="Tilt to roll motion controls" width="285" /></a></td>
+    <td align="center"><a href="./assets/features/03-progression.svg"><img src="./assets/features/03-progression.svg" alt="One thousand ranks" width="285" /></a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="./assets/features/04-achievements.svg"><img src="./assets/features/04-achievements.svg" alt="One thousand achievements" width="285" /></a></td>
+    <td align="center"><a href="./assets/features/05-offline.svg"><img src="./assets/features/05-offline.svg" alt="Offline-first Android play" width="285" /></a></td>
+    <td align="center"><a href="./APK-DOWNLOAD.md"><img src="./assets/apk-download-banner.svg" alt="Current APK build page" width="285" /></a></td>
+  </tr>
+</table>
+
+### Six in-game screens · ad-ready sliderwheel
+
+<table>
+  <tr>
+    <td><a href="./assets/screens/01-main-menu.svg"><img src="./assets/screens/01-main-menu.svg" alt="Main menu" width="285" /></a></td>
+    <td><a href="./assets/screens/02-camera-level.svg"><img src="./assets/screens/02-camera-level.svg" alt="Player-centred camera" width="285" /></a></td>
+    <td><a href="./assets/screens/03-minimap.svg"><img src="./assets/screens/03-minimap.svg" alt="Full maze minimap" width="285" /></a></td>
+  </tr>
+  <tr>
+    <td><a href="./assets/screens/04-motion-settings.svg"><img src="./assets/screens/04-motion-settings.svg" alt="Motion settings" width="285" /></a></td>
+    <td><a href="./assets/screens/05-achievements.svg"><img src="./assets/screens/05-achievements.svg" alt="Achievements" width="285" /></a></td>
+    <td><a href="./assets/screens/06-completion.svg"><img src="./assets/screens/06-completion.svg" alt="Level complete" width="285" /></a></td>
+  </tr>
+</table>
+
+<div align="center"><a href="./docs/sliderwheel.html"><strong>▶ Open the interactive six-screen sliderwheel</strong></a></div>
 
 ## Core experience
 
@@ -77,6 +120,19 @@ The design rules are deliberately strict:
 - keep pause, settings and progress one tap away;
 - reward mastery without interrupting the maze flow;
 - keep the core game local and privacy-friendly.
+
+## Ten GUI / UX upgrades for the next quality pass
+
+1. **30-second first-run tutorial:** teach swipe, D-pad, key and exit with one tiny guaranteed maze before the endless loop begins.
+2. **Comfort presets:** offer Relaxed, Standard and Focused modes with different timers, hint strength and maze pressure.
+3. **Daily seed card:** add one optional daily challenge with a shareable seed, while keeping the core progression fully offline and local.
+4. **Run recap screen:** show route length, best time, moves, key detour and the next personal target immediately after each escape.
+5. **Input safety layer:** add a short touch lock around buttons, a visible last-input indicator and optional haptics so fast swipes never misfire.
+6. **Accessibility hub:** include high-contrast markers, colour-blind-safe palettes, reduced motion, larger text and a left-handed D-pad layout.
+7. **Camera comfort controls:** let players choose follow strength, minimap zoom and whether objective arrows pulse or stay static.
+8. **Audio language:** add distinct sounds for wall contact, key pickup, exit discovery, rank-up and achievement unlock, with separate music/SFX sliders.
+9. **Achievement chains:** group the 1,000 achievements into readable collections with “next easiest” guidance instead of showing an overwhelming wall of badges.
+10. **Local backup/export:** provide an explicit export/import code for progression so a device change never erases a player’s ranks and achievements.
 
 ## Android build
 

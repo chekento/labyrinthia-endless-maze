@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Labyrinthia · In-game sliderwheel</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #060817;
+        --panel: #0b1230;
+        --panel-raised: #111a3a;
+        --ink: #f3f6ff;
+        --muted: #aeb9df;
+        --cyan: #36e0c5;
+        --violet: #7c6cff;
+        --amber: #ffc857;
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: radial-gradient(circle at 70% 15%, #172559 0, transparent 34rem), var(--bg);
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      main { width: min(1180px, 100% - 32px); margin: 0 auto; padding: 48px 0 64px; }
+      .eyebrow { color: var(--cyan); font-size: .78rem; font-weight: 900; letter-spacing: .22em; text-transform: uppercase; }
+      h1 { margin: 10px 0 12px; font-size: clamp(2.4rem, 7vw, 5rem); line-height: .95; letter-spacing: -.04em; }
+      .lede { max-width: 680px; color: var(--muted); font-size: 1.08rem; line-height: 1.6; }
+      .wheel-shell { position: relative; margin-top: 32px; padding: 16px; border: 1px solid #31447c; border-radius: 28px; background: rgba(11, 18, 48, .76); box-shadow: 0 24px 70px rgba(0, 0, 0, .3); }
+      .wheel { display: grid; grid-auto-flow: column; grid-auto-columns: 100%; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; scrollbar-width: none; border-radius: 20px; }
+      .wheel::-webkit-scrollbar { display: none; }
+      .slide { position: relative; min-width: 0; scroll-snap-align: center; }
+      .slide img { display: block; width: 100%; height: auto; border-radius: 18px; border: 1px solid #354a89; background: #071027; }
+      .caption { position: absolute; left: 24px; bottom: 22px; padding: 10px 15px; border-radius: 13px; background: rgba(6, 8, 23, .85); backdrop-filter: blur(14px); color: var(--ink); font-weight: 800; }
+      .controls { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 16px; }
+      .buttons { display: flex; gap: 10px; }
+      button, .back { border: 1px solid #425796; border-radius: 999px; padding: 11px 17px; background: var(--panel-raised); color: var(--ink); font: inherit; font-weight: 800; cursor: pointer; }
+      button:hover, button:focus-visible, .back:hover, .back:focus-visible { border-color: var(--cyan); outline: none; }
+      .dots { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+      .dot { width: 10px; height: 10px; padding: 0; border: 0; background: #435182; }
+      .dot[aria-current="true"] { width: 28px; border-radius: 8px; background: var(--cyan); }
+      .hint { color: var(--muted); font-size: .9rem; }
+      .back { display: inline-block; margin-top: 28px; text-decoration: none; }
+      @media (max-width: 680px) {
+        main { width: min(100% - 18px, 1180px); padding-top: 28px; }
+        .wheel-shell { padding: 8px; border-radius: 20px; }
+        .controls { align-items: flex-start; flex-direction: column; }
+        .dots { order: -1; width: 100%; }
+        .caption { left: 12px; bottom: 12px; font-size: .86rem; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="eyebrow">Labyrinthia · product preview</div>
+      <h1>Six ways to enter the maze.</h1>
+      <p class="lede">A swipe-friendly, ad-ready sliderwheel for the current game direction: readable large mazes, motion controls, the minimap, long-term progression and the level-clear loop.</p>
+      <section class="wheel-shell" aria-label="Labyrinthia in-game screenshots">
+        <div class="wheel" id="wheel">
+          <figure class="slide"><img src="../assets/screens/01-main-menu.svg" alt="Labyrinthia main menu"><figcaption class="caption">01 · Main menu</figcaption></figure>
+          <figure class="slide"><img src="../assets/screens/02-camera-level.svg" alt="Player-centred maze view"><figcaption class="caption">02 · Player-centred camera</figcaption></figure>
+          <figure class="slide"><img src="../assets/screens/03-minimap.svg" alt="Full maze minimap"><figcaption class="caption">03 · Full maze minimap</figcaption></figure>
+          <figure class="slide"><img src="../assets/screens/04-motion-settings.svg" alt="Motion controls settings"><figcaption class="caption">04 · Tilt controls</figcaption></figure>
+          <figure class="slide"><img src="../assets/screens/05-achievements.svg" alt="Achievements collection"><figcaption class="caption">05 · Achievement collection</figcaption></figure>
+          <figure class="slide"><img src="../assets/screens/06-completion.svg" alt="Level complete reward screen"><figcaption class="caption">06 · Level complete</figcaption></figure>
+        </div>
+        <div class="controls">
+          <div class="buttons"><button id="prev" type="button" aria-label="Previous screenshot">← Previous</button><button id="next" type="button" aria-label="Next screenshot">Next →</button></div>
+          <div class="dots" role="tablist" aria-label="Choose screenshot">
+            <button class="dot" type="button" aria-label="Screenshot 1" aria-current="true"></button>
+            <button class="dot" type="button" aria-label="Screenshot 2" aria-current="false"></button>
+            <button class="dot" type="button" aria-label="Screenshot 3" aria-current="false"></button>
+            <button class="dot" type="button" aria-label="Screenshot 4" aria-current="false"></button>
+            <button class="dot" type="button" aria-label="Screenshot 5" aria-current="false"></button>
+            <button class="dot" type="button" aria-label="Screenshot 6" aria-current="false"></button>
+          </div>
+          <span class="hint">Swipe or use the arrows</span>
+        </div>
+      </section>
+      <a class="back" href="../README.md">← Back to repository front page</a>
+    </main>
+    <script>
+      const wheel = document.querySelector('#wheel');
+      const slides = [...document.querySelectorAll('.slide')];
+      const dots = [...document.querySelectorAll('.dot')];
+      let current = 0;
+      function goTo(index) {
+        current = (index + slides.length) % slides.length;
+        slides[current].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+        dots.forEach((dot, i) => dot.setAttribute('aria-current', String(i === current)));
+      }
+      document.querySelector('#prev').addEventListener('click', () => goTo(current - 1));
+      document.querySelector('#next').addEventListener('click', () => goTo(current + 1));
+      dots.forEach((dot, i) => dot.addEventListener('click', () => goTo(i)));
+      wheel.addEventListener('scroll', () => {
+        const next = Math.round(wheel.scrollLeft / (wheel.clientWidth + 16));
+        if (next !== current && next >= 0 && next < slides.length) {
+          current = next;
+          dots.forEach((dot, i) => dot.setAttribute('aria-current', String(i === current)));
+        }
+      }, { passive: true });
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'ArrowLeft') goTo(current - 1);
+        if (event.key === 'ArrowRight') goTo(current + 1);
+      });
+    </script>
+  </body>
+</html>

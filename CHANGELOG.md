@@ -1,5 +1,14 @@
 # Changelog
 
+## Front-page marketing pass · 2026-09-23
+
+### Added
+
+- Versioned APK download banner for v2.0.0 with one stable build-page destination.
+- Five feature illustrations for camera readability, motion controls, progression, achievements and offline play.
+- Six 16:9 in-game product screenshots with an accessible swipe/keyboard sliderwheel in `docs/sliderwheel.html`.
+- Ten concrete GUI/UX upgrade recommendations in the repository front page.
+
 ## v2.0.0 · Android-ready foundation · 2026-09-23
 
 ### Added

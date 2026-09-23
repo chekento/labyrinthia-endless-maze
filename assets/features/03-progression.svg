@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" role="img" aria-labelledby="title desc">
+  <title id="title">One thousand ranks in Labyrinthia</title>
+  <desc id="desc">A progression panel displays rank 247 of 1000 with XP and a glowing route.</desc>
+  <defs>
+    <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#081b1c"/><stop offset="1" stop-color="#102d3b"/></linearGradient>
+    <linearGradient id="bar"><stop stop-color="#36e0c5"/><stop offset="1" stop-color="#7c6cff"/></linearGradient>
+    <filter id="soft"><feGaussianBlur stdDeviation="16"/></filter>
+  </defs>
+  <rect width="960" height="600" rx="32" fill="url(#bg)"/>
+  <circle cx="745" cy="215" r="170" fill="#36e0c5" opacity=".1" filter="url(#soft)"/>
+  <path d="M540 380C620 325 610 225 690 270S800 420 890 320" fill="none" stroke="#36e0c5" stroke-width="10" stroke-linecap="round"/>
+  <path d="M540 380C620 325 610 225 690 270S800 420 890 320" fill="none" stroke="#a696ff" stroke-width="2" stroke-dasharray="5 16"/>
+  <g fill="#ffc857" stroke="#06101f" stroke-width="6"><circle cx="540" cy="380" r="14"/><circle cx="690" cy="270" r="14"/><circle cx="890" cy="320" r="14"/></g>
+  <g transform="translate(58 74)" font-family="Inter,Arial,sans-serif">
+    <text y="0" font-size="17" font-weight="900" letter-spacing="3" fill="#36e0c5">PERSISTENT PROGRESS</text>
+    <text y="86" font-size="76" font-weight="900" fill="#f3f6ff">RANK 247</text>
+    <text y="123" font-size="21" fill="#b5cce1">of 1,000 · Trailblazer</text>
+    <rect y="170" width="382" height="18" rx="9" fill="#1b3f49"/>
+    <rect y="170" width="270" height="18" rx="9" fill="url(#bar)"/>
+    <text y="226" font-size="18" font-weight="800" fill="#f3f6ff">2,700 / 4,000 XP</text>
+    <rect y="286" width="300" height="58" rx="29" fill="#10273c" stroke="#36e0c5" stroke-opacity=".5"/>
+    <text x="28" y="322" font-size="19" font-weight="900" fill="#36e0c5">NEXT: MAZEWALKER</text>
+  </g>
+  <g font-family="Inter,Arial,sans-serif" fill="#f3f6ff">
+    <text x="58" y="570" font-size="27" font-weight="900">1000 RANKS</text>
+    <text x="278" y="570" font-size="17" fill="#b5cce1">A reason to return after every escape</text>
+  </g>
+  <rect x=".75" y=".75" width="958.5" height="598.5" rx="31" fill="none" stroke="#36e0c5" stroke-opacity=".5" stroke-width="1.5"/>
+</svg>

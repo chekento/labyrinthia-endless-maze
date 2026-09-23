@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" role="img" aria-labelledby="title desc">
+  <title id="title">One thousand achievements in Labyrinthia</title>
+  <desc id="desc">A collection of achievement cards celebrates keys, speed, motion and exploration.</desc>
+  <defs>
+    <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#171022"/><stop offset="1" stop-color="#2b1634"/></linearGradient>
+    <linearGradient id="gold"><stop stop-color="#ffc857"/><stop offset="1" stop-color="#ff9f43"/></linearGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="14"/></filter>
+  </defs>
+  <rect width="960" height="600" rx="32" fill="url(#bg)"/>
+  <circle cx="750" cy="230" r="160" fill="#ffc857" opacity=".12" filter="url(#glow)"/>
+  <g transform="translate(545 74)">
+    <rect width="318" height="110" rx="22" fill="#211a3e" stroke="#ffc857" stroke-opacity=".55" stroke-width="2"/>
+    <circle cx="58" cy="55" r="29" fill="url(#gold)"/><path d="M55 38l7 15 16 2-12 11 4 16-15-8-15 8 4-16-12-11 16-2z" fill="#211a3e"/>
+    <text x="104" y="48" font-family="Inter,Arial,sans-serif" font-size="20" font-weight="900" fill="#f3f6ff">FIRST KEY</text><text x="104" y="76" font-family="Inter,Arial,sans-serif" font-size="16" fill="#c8c1df">1 / 1000 unlocked</text>
+    <rect y="132" width="318" height="110" rx="22" fill="#211a3e" stroke="#7c6cff" stroke-opacity=".55" stroke-width="2"/>
+    <circle cx="58" cy="187" r="29" fill="#7c6cff"/><path d="M47 193l9-20 9 20-9 11z" fill="#f3f6ff"/>
+    <text x="104" y="180" font-family="Inter,Arial,sans-serif" font-size="20" font-weight="900" fill="#f3f6ff">SPEED RUNNER</text><text x="104" y="208" font-family="Inter,Arial,sans-serif" font-size="16" fill="#c8c1df">Fast escapes collected</text>
+    <rect y="264" width="318" height="110" rx="22" fill="#211a3e" stroke="#36e0c5" stroke-opacity=".55" stroke-width="2"/>
+    <circle cx="58" cy="319" r="29" fill="#36e0c5"/><path d="M58 294v50M33 319h50" stroke="#211a3e" stroke-width="7" stroke-linecap="round"/>
+    <text x="104" y="312" font-family="Inter,Arial,sans-serif" font-size="20" font-weight="900" fill="#f3f6ff">TILT MASTER</text><text x="104" y="340" font-family="Inter,Arial,sans-serif" font-size="16" fill="#c8c1df">Motion milestones</text>
+  </g>
+  <g font-family="Inter,Arial,sans-serif" fill="#f3f6ff">
+    <text x="58" y="111" font-size="17" font-weight="900" letter-spacing="3" fill="#ffc857">COLLECT YOUR STORY</text>
+    <text x="56" y="188" font-size="47" font-weight="900">1000 ACHIEVEMENTS</text>
+    <text x="58" y="231" font-size="20" fill="#c8c1df">Small wins, visible mastery, no account required.</text>
+    <text x="58" y="570" font-size="27" font-weight="900">KEYS · SPEED · MOTION · EXPLORATION</text>
+  </g>
+  <rect x=".75" y=".75" width="958.5" height="598.5" rx="31" fill="none" stroke="#ffc857" stroke-opacity=".48" stroke-width="1.5"/>
+</svg>

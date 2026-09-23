@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">Labyrinthia minimap screenshot</title>
+  <desc id="desc">A gameplay view with the complete maze minimap and route markers.</desc>
+  <defs>
+    <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#060817"/><stop offset="1" stop-color="#172045"/></linearGradient>
+    <linearGradient id="panel"><stop stop-color="#111a3a"/><stop offset="1" stop-color="#0b1230"/></linearGradient>
+  </defs>
+  <rect width="1200" height="675" rx="30" fill="url(#bg)"/>
+  <g fill="none" stroke="#26366f" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"><path d="M80 160h150V88h180v105h145V95h165v90h200V86h160"/><path d="M75 345h140v-82h130v155h160V286h180v132h165v-90h185"/><path d="M94 540h190v-82h160v95h170v-85h160v89h220"/></g>
+  <g font-family="Inter,Arial,sans-serif">
+    <rect x="40" y="34" width="1120" height="70" rx="22" fill="#0b1230" fill-opacity=".94" stroke="#31447c"/><text x="72" y="77" font-size="20" font-weight="900" fill="#f3f6ff">LEVEL 025</text><text x="232" y="77" font-size="17" fill="#aeb9df">THE FULL MAP IS ALWAYS ONE TAP AWAY</text><text x="1000" y="77" font-size="17" font-weight="900" fill="#36e0c5">MINIMAP</text>
+    <rect x="768" y="138" width="354" height="424" rx="26" fill="url(#panel)" stroke="#36e0c5" stroke-opacity=".7" stroke-width="3"/>
+    <text x="805" y="183" font-size="17" font-weight="900" letter-spacing="2" fill="#36e0c5">EXPEDITION MAP</text>
+    <rect x="801" y="214" width="288" height="288" rx="15" fill="#09132b" stroke="#29396e"/>
+    <g transform="translate(820 233)" fill="none" stroke="#49619e" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"><path d="M0 30h45V0h70v55h63V0h70v40h24M0 118h57V77h57v83h70V99h56v65h48M0 235h75v-45h65v54h66v-47h73"/></g>
+    <circle cx="944" cy="370" r="9" fill="#36e0c5" stroke="#d8fff8" stroke-width="4"/><circle cx="865" cy="264" r="8" fill="#ffc857"/><circle cx="1062" cy="286" r="8" fill="#ff6b8a"/>
+    <g font-size="15" fill="#c8d5fa"><circle cx="820" cy="530" r="6" fill="#36e0c5"/><text x="836" y="535">PLAYER</text><circle cx="907" cy="530" r="6" fill="#ffc857"/><text x="923" y="535">KEY</text><circle cx="982" cy="530" r="6" fill="#ff6b8a"/><text x="998" y="535">EXIT</text></g>
+    <text x="88" y="603" font-size="22" font-weight="900" fill="#f3f6ff">PLAN THE ROUTE, THEN RETURN TO FOCUS.</text><text x="90" y="635" font-size="17" fill="#aeb9df">The maze can extend beyond the screen without shrinking the player.</text>
+  </g>
+  <rect x=".75" y=".75" width="1198.5" height="673.5" rx="29" fill="none" stroke="#7c6cff" stroke-opacity=".5" stroke-width="1.5"/>
+</svg>

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+  <title id="title">Labyrinthia gameplay camera screenshot</title>
+  <desc id="desc">A player-centred maze view shows a readable player, key indicator and exit indicator.</desc>
+  <defs>
+    <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#060817"/><stop offset="1" stop-color="#101a3c"/></linearGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="12"/></filter>
+  </defs>
+  <rect width="1200" height="675" rx="30" fill="url(#bg)"/>
+  <circle cx="580" cy="360" r="170" fill="#36e0c5" opacity=".09" filter="url(#glow)"/>
+  <g fill="none" stroke="#26366f" stroke-width="31" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M110 150h150V90h160v135h120V105h175v100h150V92h170"/>
+    <path d="M82 334h120V245h138v154h156v-92h166v155h146v-98h198"/>
+    <path d="M100 550h170v-72h140v92h132v-90h172v75h205v-89h130"/>
+  </g>
+  <g fill="none" stroke="#36e0c5" stroke-width="8" stroke-linecap="round"><path d="M110 150h150V90"/><path d="M82 334h120V245"/><path d="M442 480h172"/></g>
+  <g font-family="Inter,Arial,sans-serif">
+    <rect x="46" y="36" width="1108" height="72" rx="22" fill="#0b1230" fill-opacity=".94" stroke="#31447c"/>
+    <text x="75" y="80" font-size="20" font-weight="900" letter-spacing="2" fill="#f3f6ff">LEVEL 012</text>
+    <text x="256" y="80" font-size="17" fill="#aeb9df">KEY 0/1</text>
+    <text x="395" y="80" font-size="17" fill="#aeb9df">TIME 01:42</text>
+    <text x="1007" y="80" font-size="17" font-weight="900" fill="#36e0c5">PAUSE Ⅱ</text>
+    <rect x="60" y="142" width="82" height="38" rx="19" fill="#111b3b" stroke="#ffc857" stroke-opacity=".65"/><text x="83" y="167" font-size="15" font-weight="900" fill="#ffc857">KEY ↗</text>
+    <rect x="1060" y="248" width="90" height="38" rx="19" fill="#111b3b" stroke="#ff6b8a" stroke-opacity=".65"/><text x="1082" y="273" font-size="15" font-weight="900" fill="#ff9db1">EXIT →</text>
+    <circle cx="548" cy="357" r="42" fill="#36e0c5" opacity=".22" filter="url(#glow)"/><circle cx="548" cy="357" r="23" fill="#36e0c5" stroke="#e9fffb" stroke-width="7"/>
+    <path d="M548 287v-25M548 427v25M478 357h-25M618 357h25" stroke="#e9fffb" stroke-width="5" stroke-linecap="round"/>
+    <rect x="44" y="574" width="260" height="48" rx="24" fill="#0b1230" stroke="#31447c"/><text x="77" y="605" font-size="16" font-weight="800" fill="#c8d5fa">SWIPE / D-PAD / TILT</text>
+    <circle cx="1050" cy="596" r="25" fill="#111b3b" stroke="#7c6cff" stroke-width="3"/><text x="1042" y="603" font-size="21" font-weight="900" fill="#f3f6ff">＋</text>
+  </g>
+  <rect x=".75" y=".75" width="1198.5" height="673.5" rx="29" fill="none" stroke="#36e0c5" stroke-opacity=".45" stroke-width="1.5"/>
+</svg>
