@@ -11,9 +11,9 @@
   "theme_color": "#070918",
   "icons": [
     {
-      "src": "./Gemini_Generated_Image_5kaosm5kaosm5kao.png",
+      "src": "./labyrinthia-keyart.svg",
       "sizes": "any",
-      "type": "image/png",
+      "type": "image/svg+xml",
       "purpose": "any maskable"
     }
   ]

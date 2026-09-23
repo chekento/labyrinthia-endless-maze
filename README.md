@@ -9,7 +9,7 @@
 [![Android Ready](https://img.shields.io/badge/android-ready-36e0c5?style=for-the-badge&logo=android&logoColor=071018)](#-android-build)
 [![Progression](https://img.shields.io/badge/progression-1000%20ranks%20%2B%201000%20achievements-7c6cff?style=for-the-badge)](#-long-term-motivation)
 
-<img src="./Gemini_Generated_Image_5kaosm5kaosm5kao.png" alt="Labyrinthia key art" width="760" />
+<img src="./labyrinthia-keyart.svg" alt="Labyrinthia key art" width="760" />
 
 ### An endless procedural maze adventure by KoSch
 
@@ -19,7 +19,7 @@
 
 ## Download and play
 
-- **[Download the Android-ready package](./Labyrinthia-The-Endless-Maze-Android-ready-v2.0.0.zip)** — web app, offline PWA shell and Android WebView project in one archive.
+- **Download the source:** use GitHub's **Code → Download ZIP** or clone this repository. The complete Android-ready package is maintained in the linked Library artifact while the repository stays source-first.
 - **Browser preview:** serve the repository over HTTP(S), then open `index.html`.
 - **Android Studio:** open the `android/` project and build the debug APK or a signed AAB.
 

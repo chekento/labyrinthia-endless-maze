@@ -9,7 +9,7 @@ const APP_SHELL = [
   './motion-controls.js',
   './game.js',
   './manifest.webmanifest',
-  './Gemini_Generated_Image_5kaosm5kaosm5kao.png'
+  './labyrinthia-keyart.svg'
 ];
 
 self.addEventListener('install', (event) => {
