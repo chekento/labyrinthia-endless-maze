@@ -5,6 +5,7 @@
 ### Added
 
 - Versioned APK download banner for v2.0.0 with one stable build-page destination.
+- Five generated 16:9 marketing motifs for camera focus, tilt controls, route planning, minimap strategy and level completion.
 - Five feature illustrations for camera readability, motion controls, progression, achievements and offline play.
 - Six 16:9 in-game product screenshots with an accessible swipe/keyboard sliderwheel in `docs/sliderwheel.html`.
 - Ten concrete GUI/UX upgrade recommendations in the repository front page.

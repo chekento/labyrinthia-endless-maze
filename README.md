@@ -50,6 +50,19 @@ The front page is designed like a small Play Store product page: one clear downl
 
 <table>
   <tr>
+    <td align="center"><a href="./assets/generated/camera-focus.jpg"><img src="./assets/generated/camera-focus.jpg" alt="A readable player in a large maze" width="285" /></a><br /><sub>Readable camera focus</sub></td>
+    <td align="center"><a href="./assets/generated/tilt-controls.jpg"><img src="./assets/generated/tilt-controls.jpg" alt="A tilted Android phone controlling a maze" width="285" /></a><br /><sub>Motion controls</sub></td>
+    <td align="center"><a href="./assets/generated/key-and-exit.jpg"><img src="./assets/generated/key-and-exit.jpg" alt="A key and exit connected by a maze route" width="285" /></a><br /><sub>Key-to-exit route</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="./assets/generated/tactical-minimap.jpg"><img src="./assets/generated/tactical-minimap.jpg" alt="A tactical maze minimap" width="285" /></a><br /><sub>Plan with the minimap</sub></td>
+    <td align="center"><a href="./assets/generated/level-complete.jpg"><img src="./assets/generated/level-complete.jpg" alt="A glowing level completion portal" width="285" /></a><br /><sub>Reward the escape</sub></td>
+    <td align="center"><sub>Five generated 16:9 marketing motifs<br />with exact copy kept in the UI assets below.</sub></td>
+  </tr>
+</table>
+
+<table>
+  <tr>
     <td align="center"><a href="./assets/features/01-camera.svg"><img src="./assets/features/01-camera.svg" alt="Player-centred camera" width="285" /></a></td>
     <td align="center"><a href="./assets/features/02-motion.svg"><img src="./assets/features/02-motion.svg" alt="Tilt to roll motion controls" width="285" /></a></td>
     <td align="center"><a href="./assets/features/03-progression.svg"><img src="./assets/features/03-progression.svg" alt="One thousand ranks" width="285" /></a></td>
