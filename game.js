@@ -261,6 +261,7 @@ export function initGame() {
     game.hasKey = false;
     game.completed = false;
     game.paused = false;
+    game.active = true;
     game.motionUsed = motionControls.isEnabled();
     game.levelStart = now();
     updateProfile({ currentLevel: nextLevel });
