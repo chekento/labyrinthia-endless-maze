@@ -15,7 +15,7 @@ The repository contains the Android Studio project, the complete offline web gam
 - Package: `cloud.kosch.labyrinthia`
 - Version: `2.2.0` (`versionCode 23`)
 - Minimum Android version: Android 6.0 / API 23
-- SHA-256: `d251e73d02628644ad5b2da64f2b80aa0ff0f3df2a5dfdb90feaef1d0c2abac0`
+- SHA-256: `2b80048f092a2d47ff2b363812e5a7b213d2029d4fa593ecdbd50506eb578fca`
 
 This APK is debug-signed for installation and UX testing. It is not the final Play Store-signed AAB. The banner and this page remain the stable entry point; future builds can replace the direct download without changing the front-page URL.
 

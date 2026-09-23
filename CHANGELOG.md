@@ -15,7 +15,7 @@
 
 - APK package: `cloud.kosch.labyrinthia`
 - Version: `2.2.0` / `versionCode 23`
-- SHA-256: `d251e73d02628644ad5b2da64f2b80aa0ff0f3df2a5dfdb90feaef1d0c2abac0`
+- SHA-256: `2b80048f092a2d47ff2b363812e5a7b213d2029d4fa593ecdbd50506eb578fca`
 
 ## v2.1.1 · Signature icon pass · 2026-09-23
 
