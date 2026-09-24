@@ -15,9 +15,9 @@
 
 ### An endless procedural maze adventure by KoSch
 
-<a href="./APK-DOWNLOAD.md"><img src="./assets/apk-download-banner.svg" alt="Download the current Labyrinthia APK build v2.2.1" width="920" /></a>
+<a href="./APK-DOWNLOAD.md"><img src="./assets/generated/apk-download-banner-v2.jpg" alt="Download the current Labyrinthia APK build v2.4.2" width="920" /></a>
 
-<sub>The banner is versioned to <strong>v2.2.1</strong> and points to one stable APK build page.</sub>
+<sub>Current release: <strong>v2.4.2 · versionCode 28</strong> · the banner opens the stable APK build page.</sub>
 
 </div>
 
@@ -26,12 +26,13 @@
 ## Download and play
 
 - **APK build page:** click the banner above or open [`APK-DOWNLOAD.md`](./APK-DOWNLOAD.md). It is the stable destination for the current APK version.
-- **Direct APK:** download the current debug-signed Android build [`Labyrinthia-v2.2.1-debug.apk`](./downloads/Labyrinthia-v2.2.1-debug.apk) for device testing.
+- **Direct APK:** download the current debug-signed Android build [`Labyrinthia-v2.4.2-debug.apk`](./downloads/Labyrinthia-v2.4.2-debug.apk) for device testing.
+- **Repository pages:** browse the [Changelog](./CHANGELOG.md) or download older builds from the [Versionsarchiv](./VERSIONS.md).
 - **Download the source:** use GitHub's **Code → Download ZIP** or clone this repository. The repository stays source-first and the Android-ready project lives in [`android/`](./android/).
 - **Browser preview:** serve the repository over HTTP(S), then open `index.html`.
 - **Android Studio:** open the `android/` project and build the debug APK or a signed AAB.
 
-> **APK status:** v2.2.1 is the current Android-ready Pre-Alpha build. The repository includes a debug-signed APK for testing; it is not the final Play Store-signed AAB.
+> **APK status:** v2.4.2 is the current Android-ready Pre-Alpha build. The repository includes a debug-signed APK for testing; it is not the final Play Store-signed AAB.
 
 ## Why the game should stay fun for a long time
 
@@ -48,6 +49,15 @@ The maze can extend far beyond the screen. Higher difficulty changes the scale o
 ## Visual product preview
 
 The front page is designed like a small Play Store product page: one clear download action, a feature story and a six-screen sliderwheel. GitHub renders the linked strip below directly; the full swipeable version is available in [`docs/sliderwheel.html`](./docs/sliderwheel.html).
+
+### New v2.4.1 artwork
+
+<table>
+  <tr>
+    <td align="center"><a href="./assets/generated/main-menu-hero-v2.jpg"><img src="./assets/generated/main-menu-hero-v2.jpg" alt="Labyrinthia main-menu hero artwork" width="440" /></a><br /><sub>Main menu hero</sub></td>
+    <td align="center"><a href="./assets/generated/welcome-tutorial-hero-v2.jpg"><img src="./assets/generated/welcome-tutorial-hero-v2.jpg" alt="Labyrinthia welcome tutorial artwork" width="440" /></a><br /><sub>Welcome tutorial</sub></td>
+  </tr>
+</table>
 
 ### What makes the loop feel good
 
@@ -73,7 +83,7 @@ The front page is designed like a small Play Store product page: one clear downl
   <tr>
     <td align="center"><a href="./assets/features/04-achievements.svg"><img src="./assets/features/04-achievements.svg" alt="One thousand achievements" width="285" /></a></td>
     <td align="center"><a href="./assets/features/05-offline.svg"><img src="./assets/features/05-offline.svg" alt="Offline-first Android play" width="285" /></a></td>
-    <td align="center"><a href="./APK-DOWNLOAD.md"><img src="./assets/apk-download-banner.svg" alt="Current APK build page" width="285" /></a></td>
+    <td align="center"><a href="./APK-DOWNLOAD.md"><img src="./assets/generated/apk-download-banner-v2.jpg" alt="Current APK build page" width="285" /></a></td>
   </tr>
 </table>
 
@@ -137,20 +147,26 @@ The design rules are deliberately strict:
 - reward mastery without interrupting the maze flow;
 - keep the core game local and privacy-friendly.
 
-## Mechanics and GUI upgrades included in v2.2.1
+## Mechanics, physics and GUI upgrades included in v2.4.2
 
 The newest playable build adds the requested physical and readability pass:
 
-1. **Physikalische Sensorsteuerung:** Accelerometer-Werte werden auf Gravitation normiert; stärkere Neigung baut mehr Rollgeschwindigkeit auf.
+1. **Stufenlose Kugelbrett-Physik:** Der Sensorstrom wird kalibriert, in tangentiale Beschleunigung umgerechnet und mit Geschwindigkeit, Reibung, Ballradius und Wandimpuls kontinuierlich simuliert. Mehr Neigung bedeutet physikalisch mehr Tempo.
 2. **Kontinuierliches Wischen:** Eine gehaltene Richtung bewegt mehrere Zellen bis zum Loslassen, Wandkontakt oder Fallloch.
-3. **Faire Fallen:** Ab Level 3 entstehen kleine, später größere/gebündelte Falllöcher. Start→Schlüssel→Ausgang bleibt als sichere Route garantiert.
+3. **Faire Fallen:** Ab Level 3 liegen Falllöcher nur noch in bewusst aufgeweiteten 2-spurigen Passagen. Ein sicherer Parallelweg bleibt neben jedem Loch; Start→Schlüssel→Ausgang bleibt garantiert.
 4. **Savepoints:** Start und Schlüssel markieren Rücksetzpunkte; ein Fallloch setzt die Kugel dorthin zurück und erhält den Schlüsselstatus.
-5. **Rollende Kugel:** Eased Bewegung, Kugel-Highlight und rotierende Naht machen jeden Schritt physisch lesbar.
-6. **Gestuftes Leveldesign:** Die Schwierigkeit meldet Warm-up, Lochgrößen und Cluster direkt im HUD.
-7. **Minimierbares HUD:** Karte, Steuerung, Aktionen und Zielchips lassen sich einzeln minimieren; der Header kann das Spielfeld maximieren.
-8. **Lesbare Kartenansicht:** Die mobile Spielfeldhöhe ist begrenzt, damit die Umgebungskarte nicht mehr vom Labyrinth überdeckt wird.
-9. **Lokales Audio-Feedback:** Falllöcher haben ein eigenes Warnsignal und Haptik.
-10. **Vorbereitet für Ausbau:** Die sichere Routen-/Hazard-Schicht lässt sich später um verschiebbare Segmente, Schlüsselketten und Türen erweitern.
+5. **Massiver Grafik-Overhaul:** Mehrschichtige Bodenflächen, Tiefenwände, Wand-Glow, animierte Falllöcher, Rollspur und eine schattierte Kugel machen das Brett räumlich lesbar.
+6. **Zehn Kugelprofile:** Nova, Luma, Cinder, Moss, Glacia, Nyx, Aurelia, Sol, Echo und Dave sind in den Settings auswählbar und lokal gespeichert. Dave hat jetzt sichtbare Kruste, Sauce, Käse, Schnittlinien, Pepperoni und Basilikum; alle anderen Profile werden als 3D-Kugeln gerendert.
+7. **Gestuftes Leveldesign:** Level 1–10 wachsen kompakt von 9×9 bis 27×27 Zellen, damit frühe Zeit-Challenges realistisch bleiben; danach setzt die Endlos-Skalierung ein.
+8. **Minimierbares HUD:** Karte, Steuerung, Aktionen und Zielchips lassen sich einzeln minimieren; der Header kann das Spielfeld maximieren.
+9. **Mobile Kartenansicht:** Maze, Minimap, D-Pad und Aktionen liegen auf kleinen Displays sauber untereinander; alle Panels bleiben einzeln minimierbar, der Spielfokus maximierbar.
+10. **Schönere Navigation:** Das D-Pad hat gedrückte Zustände, größere sichere Touchflächen und eine klare Halten-zum-Rollen-Hilfe.
+11. **Raumklang ohne Dateiballast:** Fünf prozedurale, loopbare Ambient-Szenen sowie Echo und Hall für FX halten die Offline-App klein.
+12. **Neues Tutorial:** Ein sechsteiliger Einstieg erklärt Ziel, Steuerwege, physikalische Neigung, Savepoints, faire Fallen, Kamera und Fortschritt.
+13. **Variantere Achievements:** Die 1.000 Plätze nutzen wechselnde Namen und Beschreibungen; die neue Risiko-Sammlung enthält negative Warnabzeichen für Falllöcher und Wandkontakte.
+14. **Vorbereitet für Ausbau:** Die sichere Routen-/Hazard-Schicht lässt sich später um verschiebbare Segmente, Schlüsselketten und Türen erweitern.
+15. **Welcome- und Menükunst:** Das Tutorial und Hauptmenü verwenden neue, kompakte Key-Art-Bilder mit negativer Fläche für lesbare UI.
+16. **Versionsarchiv:** Alte APK-Dateien bleiben über eine eigene Repository-Unterseite direkt downloadbar.
 
 ## Android build
 
@@ -165,14 +181,14 @@ Open `android/` in Android Studio with an Android SDK installed, or run `./gradl
 
 ## Development status
 
-The current build is **v2.2.1 Android-ready / Pre-Alpha**. The next quality passes should focus on:
+The current build is **v2.4.2 Android-ready / Pre-Alpha**. The next quality passes should focus on:
 
 - device-by-device sensor tuning and accessibility testing;
 - movable maze segments, multiple keys and intermediate savepoint doors;
 - device performance profiling on very large levels;
 - signed AAB preparation and Play Store listing assets.
 
-See [`CHANGELOG.md`](./CHANGELOG.md) for the current release notes.
+See [`CHANGELOG.md`](./CHANGELOG.md) for the current release notes and [`VERSIONS.md`](./VERSIONS.md) for older APK builds.
 
 ## Privacy
 
