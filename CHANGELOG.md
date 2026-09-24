@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.4.3 · Project links and external navigation · 2026-09-24
+
+### Added
+
+- Settings now expose direct links to `kosch.cloud` and the playable web version at `maze.on.websim.com`.
+- Android WebView opens external HTTPS links in the device browser without taking the local game out of its asset shell.
+- Repository frontpage and APK artwork now point to the freshly built v2.4.3 / versionCode 29 package.
+
+### Verification
+
+- APK package: `cloud.kosch.labyrinthia`
+- Version: `2.4.3` / `versionCode 29`
+- SHA-256: `fb4d594c22147d1a1e4b95d93aeff7c73987a1cbf33afe85cc7df80a9380597c`
+
 ## v2.4.2 · Fair wide-lane hazards and compact onboarding levels · 2026-09-24
 
 ### Added

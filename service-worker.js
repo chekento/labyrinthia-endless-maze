@@ -1,4 +1,4 @@
-const CACHE_NAME = 'labyrinthia-v2.2.1';
+const CACHE_NAME = 'labyrinthia-v2.4.3';
 const APP_SHELL = [
   './',
   './index.html',
@@ -13,7 +13,9 @@ const APP_SHELL = [
   './labyrinthia-keyart.svg',
   './assets/icons/labyrinthia-icon-192.png',
   './assets/icons/labyrinthia-icon-512.png',
-  './assets/generated/key-and-exit.jpg'
+  './assets/generated/key-and-exit.jpg',
+  './assets/generated/welcome-tutorial-hero-v2.jpg',
+  './assets/generated/main-menu-hero-v2.jpg'
 ];
 
 self.addEventListener('install', (event) => {

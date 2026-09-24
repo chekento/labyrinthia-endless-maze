@@ -15,9 +15,9 @@
 
 ### An endless procedural maze adventure by KoSch
 
-<a href="./APK-DOWNLOAD.md"><img src="./assets/generated/apk-download-banner-v2.jpg" alt="Download the current Labyrinthia APK build v2.4.2" width="920" /></a>
+<a href="./downloads/Labyrinthia-v2.4.3-debug.apk"><img src="./assets/generated/apk-download-banner-v2.jpg" alt="Download the current Labyrinthia APK build v2.4.3" width="920" /></a>
 
-<sub>Current release: <strong>v2.4.2 · versionCode 28</strong> · the banner opens the stable APK build page.</sub>
+<sub>Current release: <strong>v2.4.3 · versionCode 29</strong> · tap the banner for the direct APK; use the build page for checksums and history.</sub>
 
 </div>
 
@@ -26,13 +26,14 @@
 ## Download and play
 
 - **APK build page:** click the banner above or open [`APK-DOWNLOAD.md`](./APK-DOWNLOAD.md). It is the stable destination for the current APK version.
-- **Direct APK:** download the current debug-signed Android build [`Labyrinthia-v2.4.2-debug.apk`](./downloads/Labyrinthia-v2.4.2-debug.apk) for device testing.
+- **Direct APK:** download the current debug-signed Android build [`Labyrinthia-v2.4.3-debug.apk`](./downloads/Labyrinthia-v2.4.3-debug.apk) for device testing.
 - **Repository pages:** browse the [Changelog](./CHANGELOG.md) or download older builds from the [Versionsarchiv](./VERSIONS.md).
+- **Project links:** visit [KoSch Cloud](https://kosch.cloud) or open the [playable web version](https://maze.on.websim.com).
 - **Download the source:** use GitHub's **Code → Download ZIP** or clone this repository. The repository stays source-first and the Android-ready project lives in [`android/`](./android/).
 - **Browser preview:** serve the repository over HTTP(S), then open `index.html`.
 - **Android Studio:** open the `android/` project and build the debug APK or a signed AAB.
 
-> **APK status:** v2.4.2 is the current Android-ready Pre-Alpha build. The repository includes a debug-signed APK for testing; it is not the final Play Store-signed AAB.
+> **APK status:** v2.4.3 is the current Android-ready Pre-Alpha build. The repository includes a debug-signed APK for testing; it is not the final Play Store-signed AAB.
 
 ## Why the game should stay fun for a long time
 
@@ -83,7 +84,7 @@ The front page is designed like a small Play Store product page: one clear downl
   <tr>
     <td align="center"><a href="./assets/features/04-achievements.svg"><img src="./assets/features/04-achievements.svg" alt="One thousand achievements" width="285" /></a></td>
     <td align="center"><a href="./assets/features/05-offline.svg"><img src="./assets/features/05-offline.svg" alt="Offline-first Android play" width="285" /></a></td>
-    <td align="center"><a href="./APK-DOWNLOAD.md"><img src="./assets/generated/apk-download-banner-v2.jpg" alt="Current APK build page" width="285" /></a></td>
+    <td align="center"><a href="./downloads/Labyrinthia-v2.4.3-debug.apk"><img src="./assets/generated/apk-download-banner-v2.jpg" alt="Current APK download" width="285" /></a></td>
   </tr>
 </table>
 
@@ -181,7 +182,7 @@ Open `android/` in Android Studio with an Android SDK installed, or run `./gradl
 
 ## Development status
 
-The current build is **v2.4.2 Android-ready / Pre-Alpha**. The next quality passes should focus on:
+The current build is **v2.4.3 Android-ready / Pre-Alpha**. The next quality passes should focus on:
 
 - device-by-device sensor tuning and accessibility testing;
 - movable maze segments, multiple keys and intermediate savepoint doors;

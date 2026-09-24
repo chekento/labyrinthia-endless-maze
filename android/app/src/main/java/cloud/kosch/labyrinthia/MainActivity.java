@@ -2,10 +2,12 @@ package cloud.kosch.labyrinthia;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
@@ -58,8 +60,25 @@ public class MainActivity extends Activity implements SensorEventListener {
         settings.setBuiltInZoomControls(false);
         settings.setDisplayZoomControls(false);
         settings.setMediaPlaybackRequiresUserGesture(false);
-        settings.setUserAgentString(settings.getUserAgentString() + " LabyrinthiaAndroid/2.2.1");
+        settings.setUserAgentString(settings.getUserAgentString() + " LabyrinthiaAndroid/2.4.3");
         view.setWebViewClient(new WebViewClientCompat() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                Uri uri = request.getUrl();
+                String scheme = uri.getScheme();
+                boolean externalWebLink = ("http".equalsIgnoreCase(scheme) || "https".equalsIgnoreCase(scheme))
+                        && !"appassets.androidplatform.net".equalsIgnoreCase(uri.getHost());
+                if (externalWebLink) {
+                    try {
+                        startActivity(new Intent(Intent.ACTION_VIEW, uri));
+                    } catch (Exception ignored) {
+                        // Keep the game usable if the device has no browser handler.
+                    }
+                    return true;
+                }
+                return false;
+            }
+
             @Override
             public android.webkit.WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
                 return assetLoader.shouldInterceptRequest(request.getUrl());

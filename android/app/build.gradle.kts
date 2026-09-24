@@ -31,8 +31,8 @@ android {
         applicationId = "cloud.kosch.labyrinthia"
         minSdk = 23
         targetSdk = 35
-        versionCode = 24
-        versionName = "2.2.1"
+        versionCode = 29
+        versionName = "2.4.3"
     }
 
     buildFeatures { buildConfig = true }

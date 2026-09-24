@@ -1,23 +1,24 @@
-# Labyrinthia APK · v2.4.2
+# Labyrinthia APK · v2.4.3
 
 The front-page banner always points here so the APK call-to-action has one stable, version-aware destination.
 
-<a href="./downloads/Labyrinthia-v2.4.2-debug.apk"><img src="./assets/generated/apk-download-banner-v2.jpg" alt="Download Labyrinthia v2.4.2 APK" width="920" /></a>
+<a href="./downloads/Labyrinthia-v2.4.3-debug.apk"><img src="./assets/generated/apk-download-banner-v2.jpg" alt="Download Labyrinthia v2.4.3 APK" width="920" /></a>
 
 ## Current channel
 
-**v2.4.2 · Android-ready · Pre-Alpha**
+**v2.4.3 · Android-ready · Pre-Alpha**
 
 The repository contains the Android Studio project, the complete offline web game and a compiled debug APK for device testing.
 
 ## Current download
 
-[Download Labyrinthia v2.4.2 debug APK](./downloads/Labyrinthia-v2.4.2-debug.apk)
+[Download Labyrinthia v2.4.3 debug APK](./downloads/Labyrinthia-v2.4.3-debug.apk)
 
 - Package: `cloud.kosch.labyrinthia`
-- Version: `2.4.2` (`versionCode 28`)
+- Version: `2.4.3` (`versionCode 29`)
 - Minimum Android version: Android 6.0 / API 23
-- SHA-256: `123215e88c18b51a1650dd3e8b63b81923eb6e5b4a205656fbed8250a66ee7bd`
+- File size: `11,568,607` bytes (about 11.0 MiB)
+- SHA-256: `fb4d594c22147d1a1e4b95d93aeff7c73987a1cbf33afe85cc7df80a9380597c`
 
 ## Weitere Repository-Seiten
 

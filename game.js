@@ -1,4 +1,4 @@
-import { CONFIG } from './config.js';
+import { BALL_THEMES, CONFIG } from './config.js';
 import {
   canMove,
   chooseKey,
@@ -24,6 +24,7 @@ import {
   getUnlockedAchievements,
   hapticPulse,
   importProfile,
+  recordFall,
   recordKey,
   recordLevelComplete,
   recordMove,
@@ -33,6 +34,7 @@ import {
   saveProfile,
   setAccessibilityPreferences,
   setAudioPreferences,
+  setBallTheme,
   setCameraPreferences,
   setComfortMode,
   setHaptics,
@@ -165,10 +167,15 @@ export function initGame() {
     largeText: document.getElementById('largeText'),
     leftHanded: document.getElementById('leftHanded'),
     colorblindSafe: document.getElementById('colorblindSafe'),
+    ballTheme: document.getElementById('ballTheme'),
+    ballThemeDescription: document.getElementById('ballThemeDescription'),
+    ballThemePreview: document.getElementById('ballThemePreview'),
     sfxToggle: document.getElementById('sfxToggle'),
     sfxVolume: document.getElementById('sfxVolume'),
     musicToggle: document.getElementById('musicToggle'),
     musicVolume: document.getElementById('musicVolume'),
+    ambientTrack: document.getElementById('ambientTrack'),
+    spaceFxToggle: document.getElementById('spaceFxToggle'),
     backupCode: document.getElementById('backupCode'),
     backupExportBtn: document.getElementById('backupExportBtn'),
     backupCopyBtn: document.getElementById('backupCopyBtn'),
@@ -219,18 +226,21 @@ export function initGame() {
     routeHint: [],
     playerTween: null,
     rolling: { dx: 0, dy: 0, intensity: 0, angle: 0 },
+    motionPosition: { x: 1.5, y: 1.5 },
+    motionLastCell: { x: 1, y: 1 },
+    motionTrail: [],
+    motionFrameAt: 0,
+    lastMotionMoveAt: 0,
     fallFlashUntil: 0,
     manualHold: null,
     manualHoldTimer: null,
-    motionTelemetry: { intensity: 0, x: 0, y: 0, received: false, source: 'none' }
+    motionTelemetry: { intensity: 0, x: 0, y: 0, speed: 0, velocityX: 0, velocityY: 0, received: false, source: 'none' }
   };
 
   let animationFrame = null;
   const audio = createAudioFeedback();
-  const motionControls = initMotionControls((dx, dy, intensity) => {
-    if (!game.active || game.paused) return;
-    game.motionUsed = true;
-    return movePlayer(dx, dy, 'motion', intensity);
+  const motionControls = initMotionControls((movement) => {
+    if (movement?.received) game.motionUsed = true;
   }, (movement) => {
     game.motionTelemetry = movement;
     updateMotionTelemetry();
@@ -245,6 +255,26 @@ export function initGame() {
       colors.exit = '#00d4ff';
     }
     return colors;
+  }
+
+  function ballTheme() {
+    return BALL_THEMES[getProfile().ballTheme] || BALL_THEMES.nova;
+  }
+
+  function syncBallThemePreview() {
+    const profile = getProfile();
+    const theme = ballTheme();
+    if (elements.ballThemeDescription) elements.ballThemeDescription.textContent = `${theme.name} · ${theme.description}`;
+    if (elements.ballThemePreview) {
+      elements.ballThemePreview.style.setProperty('--ball-base', theme.base);
+      elements.ballThemePreview.style.setProperty('--ball-highlight', theme.highlight);
+      elements.ballThemePreview.style.setProperty('--ball-shadow', theme.shadow);
+      elements.ballThemePreview.style.setProperty('--ball-accent', theme.accent);
+      elements.ballThemePreview.dataset.pattern = theme.pattern;
+      elements.ballThemePreview.textContent = theme.pattern === 'pizza' ? '🍕' : '✦';
+      elements.ballThemePreview.setAttribute('aria-label', `Kugelvorschau ${theme.name}`);
+    }
+    if (elements.ballTheme && elements.ballTheme.value !== profile.ballTheme) elements.ballTheme.value = profile.ballTheme;
   }
 
   function comfortPreset() {
@@ -279,6 +309,8 @@ export function initGame() {
     audio.setSfxEnabled(profile.sfxEnabled);
     audio.setSfxVolume(profile.sfxVolume);
     audio.setMusicVolume(profile.musicVolume);
+    audio.setAmbientTrack(profile.ambientTrack);
+    audio.setSpaceFxEnabled(profile.spaceFxEnabled);
     audio.setMusicEnabled(profile.musicEnabled);
   }
 
@@ -320,9 +352,12 @@ export function initGame() {
   }
 
   const tutorialSlides = [
-    { icon: '◎', title: 'Lies den Raum', copy: 'Wische auf dem Spielfeld, nutze das D-Pad oder neige dein Gerät. Deine Figur bleibt groß, auch wenn das Labyrinth wächst.' },
-    { icon: '⌁', title: 'Schlüssel vor Ausgang', copy: 'Hole den goldenen Schlüssel. Der Ausgang wird aktiv und bleibt mit einem Zielpfeil und auf der Minimap sichtbar.' },
-    { icon: '✦', title: 'Jeder Run zählt', copy: 'Sammle XP, Ränge und Achievement-Ketten. Nach jedem Escape bekommst du eine kompakte Run-Rekapitulierung und ein nächstes Ziel.' }
+    { icon: '◎', title: 'Dein Ziel: raus aus dem Raum', copy: 'Finde zuerst den goldenen Schlüssel. Erst dann öffnet sich der türkisfarbene Ausgang. KEY und EXIT zeigen dir die Richtung, auch wenn das Ziel gerade außerhalb der Kamera liegt.' },
+    { icon: '⌁', title: 'Drei Wege, eine Kugel', copy: 'Wische in eine Richtung und halte fest: Die Kugel rollt Schritt für Schritt weiter, bis du loslässt, eine Wand erreichst oder in ein Fallloch gerätst. Alternativ hältst du die D-Pad-Taste oder eine Pfeiltaste.' },
+    { icon: '◌', title: 'Neigung wird zu Tempo', copy: 'Aktiviere die Sensorsteuerung und halte das Gerät kurz waagerecht. Je stärker du neigst, desto mehr physikalische Rollgeschwindigkeit baut die Kugel auf; Reibung bremst sie wieder ab.' },
+    { icon: '◍', title: 'Falllöcher sind riskant, aber fair', copy: 'Die ersten Level haben sicheren Boden. Danach kommen kleine und später größere Falllöcher. Jede Route bleibt lösbar: Neben einer Falle bleibt ein begehbarer Weg, und ein Sturz bringt dich zum letzten Savepoint zurück.' },
+    { icon: '▦', title: 'Karte, Fokus und Kontrolle', copy: 'Die Minimap zeigt deine Expedition. Jede Karte und jedes HUD-Element hat ein −/+ zum Minimieren und Maximieren. Mit ⤢ blendest du die Seitenkarten für einen großen Spielfeld-Fokus aus.' },
+    { icon: '✦', title: 'Deine Geschichte wird vielseitig', copy: 'Sammle XP, Ränge und viele unterschiedliche Achievements: schnelle Runs, Sensor-Meisterschaft, Schlüssel und auch Warnabzeichen für Falllöcher oder Wandkontakte. Spätere Level können bewegliche Teile, mehrere Schlüssel und Savepoint-Türen bringen.' }
   ];
 
   function renderTutorial() {
@@ -406,7 +441,10 @@ export function initGame() {
 
   function announceAchievements(achievements) {
     achievements.slice(0, 4).forEach((achievement, index) => {
-      setTimeout(() => announce(`🏆 ${achievement.title} · Achievement ${achievement.number}/1000`, 'achievement'), index * 360);
+      setTimeout(() => {
+        announce(`${achievement.negative ? '⚠' : '🏆'} ${achievement.title} · Achievement ${achievement.number}/1000`, achievement.negative ? 'warning' : 'achievement');
+        audio.play(achievement.negative ? 'wall' : 'achievement');
+      }, index * 360);
     });
     if (achievements.length > 4) {
       setTimeout(() => announce(`+${achievements.length - 4} weitere Achievements freigeschaltet`, 'achievement'), 1500);
@@ -442,8 +480,9 @@ export function initGame() {
       elements.motionTelemetry.textContent = 'Sensor aktiviert · warte auf Android-Messwerte …';
       return;
     }
+    const speed = Math.max(0, Number(game.motionTelemetry.speed) || 0);
     elements.motionTelemetry.textContent = intensity > 0
-      ? `Neigung ${intensity}% · Geschwindigkeit wird physikalisch aufgebaut · ${game.motionTelemetry.source}`
+      ? `Neigung ${intensity}% · stufenlos ${speed.toFixed(2)} Zellen/s · ${game.motionTelemetry.source}`
       : `Waagerecht · bereit zum Rollen · ${game.motionTelemetry.source}`;
   }
 
@@ -461,7 +500,7 @@ export function initGame() {
     elements.timer.textContent = formatTime(elapsed);
     elements.motionStatus.textContent = !motionControls.isEnabled()
       ? 'Touch / Pfeile'
-      : game.motionTelemetry.received ? 'Sensorsteuerung aktiv' : 'Sensor wartet …';
+      : game.motionTelemetry.received ? 'Sensor · stufenlos' : 'Sensor wartet …';
     elements.motionStatus.classList.toggle('is-active', motionControls.isEnabled());
     if (elements.difficultyStatus) {
       elements.difficultyStatus.textContent = game.difficulty?.label || 'Warm-up';
@@ -511,6 +550,13 @@ export function initGame() {
     game.savepoint = { x: 1, y: 1, hasKey: false, label: 'Start' };
     game.playerTween = null;
     game.rolling = { dx: 0, dy: 0, intensity: 0, angle: 0 };
+    game.motionPosition = { x: 1.5, y: 1.5 };
+    game.motionLastCell = { x: 1, y: 1 };
+    game.motionTrail = [];
+    game.motionFrameAt = now();
+    game.lastMotionMoveAt = 0;
+    game.motionTelemetry = { intensity: 0, x: 0, y: 0, speed: 0, velocityX: 0, velocityY: 0, received: false, source: 'none' };
+    motionControls.resetVelocity();
     game.lastMove = 0;
     game.fallFlashUntil = 0;
     stopDirectionalHold();
@@ -541,6 +587,7 @@ export function initGame() {
   function completeLevel() {
     game.completed = true;
     stopDirectionalHold();
+    motionControls.resetVelocity();
     const durationMs = now() - game.levelStart;
     const rankBefore = getRank(getProfile().xp).rank;
     const newAchievements = recordLevelComplete({
@@ -574,45 +621,12 @@ export function initGame() {
     updateMenuStats();
   }
 
-  function movePlayer(dx, dy, source = 'input', intensity = 0) {
-    if (!game.active || game.paused || game.completed) return false;
-    if (!Number.isFinite(dx) || !Number.isFinite(dy)) return false;
-    if (source !== 'motion' && Date.now() < game.inputShieldUntil) return null;
-    const directionX = clamp(Math.round(dx), -1, 1);
-    const directionY = clamp(Math.round(dy), -1, 1);
-    if ((directionX === 0 && directionY === 0) || (directionX !== 0 && directionY !== 0)) return false;
-    const timestamp = Date.now();
-    const normalizedIntensity = clamp(Number(intensity) || 0, 0, 1);
-    // A steeper tilt produces a shorter move interval. The physics module
-    // still carries momentum, so speed builds naturally instead of jumping.
-    const delay = source === 'motion'
-      ? Math.max(44, CONFIG.motionMoveDelay / (0.35 + normalizedIntensity * 1.65))
-      : comfortPreset().moveDelay;
-    if (timestamp - game.lastMove < delay) return null;
-    game.lastMove = timestamp;
-    if (!canMove(game.maze, game.player, directionX, directionY)) {
-      game.wallBumpsThisLevel += 1;
-      recordWallBump();
-      if (source !== 'motion') hapticPulse(5);
-      audio.play('wall');
-      markInput('Wandkontakt', 'warning');
-      return false;
+  function handleCellArrival(source = 'input') {
+    const landedCell = game.maze[game.player.y]?.[game.player.x];
+    if (landedCell?.hazard === 'hole') {
+      triggerFall();
+      return true;
     }
-
-    const previousPlayer = { ...game.player };
-    game.player = { x: game.player.x + directionX, y: game.player.y + directionY };
-    game.playerTween = { from: previousPlayer, to: { ...game.player }, started: now(), duration: Math.max(68, delay * 0.82) };
-    game.rolling = {
-      dx: directionX,
-      dy: directionY,
-      intensity: source === 'motion' ? normalizedIntensity : 0.78,
-      angle: game.rolling.angle + (directionX - directionY) * Math.PI * 0.62
-    };
-    game.movesThisLevel += 1;
-    recordMove();
-    hapticPulse(4);
-    audio.play('move');
-    markInput(source === 'motion' ? 'Tilt' : 'Move');
 
     if (!game.hasKey && game.player.x === game.key.x && game.player.y === game.key.y) {
       game.hasKey = true;
@@ -627,25 +641,139 @@ export function initGame() {
       }
     }
 
-    const landedCell = game.maze[game.player.y]?.[game.player.x];
-    if (landedCell?.hazard === 'hole') {
-      triggerFall();
-      return true;
-    }
-
     if (game.player.x === game.exit.x && game.player.y === game.exit.y) {
       if (game.hasKey) {
         completeLevel();
       } else {
         announce('Der Ausgang ist versiegelt. Finde zuerst den Schlüssel.', 'warning');
         audio.play('wall');
+        motionControls.resetVelocity();
         stopDirectionalHold();
         return false;
       }
     }
+    return true;
+  }
+
+  function movePlayer(dx, dy, source = 'input', intensity = 0) {
+    if (!game.active || game.paused || game.completed) return false;
+    if (!Number.isFinite(dx) || !Number.isFinite(dy)) return false;
+    if (source !== 'motion' && Date.now() < game.inputShieldUntil) return null;
+    const directionX = clamp(Math.round(dx), -1, 1);
+    const directionY = clamp(Math.round(dy), -1, 1);
+    if ((directionX === 0 && directionY === 0) || (directionX !== 0 && directionY !== 0)) return false;
+    const timestamp = Date.now();
+    const normalizedIntensity = clamp(Number(intensity) || 0, 0, 1);
+    // Manual input keeps its readable cell cadence. Motion Control is handled
+    // by moveContinuousBall(), where the physics module owns velocity.
+    const delay = source === 'motion'
+      ? Math.max(44, CONFIG.motionMoveDelay / (0.35 + normalizedIntensity * 1.65))
+      : comfortPreset().moveDelay;
+    if (timestamp - game.lastMove < delay) return null;
+    game.lastMove = timestamp;
+    if (!canMove(game.maze, game.player, directionX, directionY)) {
+      game.wallBumpsThisLevel += 1;
+      const newAchievements = recordWallBump();
+      if (source !== 'motion') hapticPulse(5);
+      audio.play('wall');
+      markInput('Wandkontakt', 'warning');
+      announceAchievements(newAchievements);
+      return false;
+    }
+
+    const previousPlayer = { ...game.player };
+    game.player = { x: game.player.x + directionX, y: game.player.y + directionY };
+    game.playerTween = { from: previousPlayer, to: { ...game.player }, started: now(), duration: Math.max(68, delay * 0.82) };
+    game.motionPosition = { x: game.player.x + 0.5, y: game.player.y + 0.5 };
+    game.motionLastCell = { ...game.player };
+    game.rolling = {
+      dx: directionX,
+      dy: directionY,
+      intensity: source === 'motion' ? normalizedIntensity : 0.78,
+      angle: game.rolling.angle + (directionX - directionY) * Math.PI * 0.62
+    };
+    game.movesThisLevel += 1;
+    recordMove();
+    hapticPulse(4);
+    audio.play('move');
+    markInput(source === 'motion' ? 'Tilt' : 'Move');
+
+    if (!handleCellArrival(source)) return false;
     updateHud();
     draw();
     return true;
+  }
+
+  function moveContinuousBall(deltaSeconds) {
+    if (!game.active || game.paused || game.completed || !motionControls.isEnabled() || !game.maze.length) return;
+    const movement = motionControls.tick(deltaSeconds);
+    game.motionTelemetry = movement;
+    if (!movement.calibrated || !movement.isRolling) return;
+
+    const radius = CONFIG.physics.ballRadius;
+    const position = { ...game.motionPosition };
+    const minX = 1 + radius;
+    const minY = 1 + radius;
+    const maxX = game.cols - 1 - radius;
+    const maxY = game.rows - 1 - radius;
+    const blocked = { x: false, y: false };
+
+    const moveAxis = (axis, amount) => {
+      if (!amount) return;
+      const coordinate = axis === 'x' ? position.x : position.y;
+      const cellX = clamp(Math.floor(position.x), 1, game.cols - 2);
+      const cellY = clamp(Math.floor(position.y), 1, game.rows - 2);
+      const cell = game.maze[cellY]?.[cellX];
+      if (!cell) return;
+      const positive = amount > 0;
+      const wallIndex = axis === 'x' ? (positive ? 1 : 3) : (positive ? 2 : 0);
+      const boundary = axis === 'x'
+        ? (positive ? cellX + 1 : cellX)
+        : (positive ? cellY + 1 : cellY);
+      const limit = positive ? boundary - radius : boundary + radius;
+      const next = coordinate + amount;
+      if ((positive && cell.walls[wallIndex] && next > limit) || (!positive && cell.walls[wallIndex] && next < limit)) {
+        if (axis === 'x') position.x = limit;
+        else position.y = limit;
+        blocked[axis] = true;
+        return;
+      }
+      if (axis === 'x') position.x = clamp(next, minX, maxX);
+      else position.y = clamp(next, minY, maxY);
+    };
+
+    moveAxis('x', movement.velocityX * deltaSeconds);
+    moveAxis('y', movement.velocityY * deltaSeconds);
+    if (blocked.x) motionControls.hitWall('x');
+    if (blocked.y) motionControls.hitWall('y');
+    game.motionPosition = { x: clamp(position.x, minX, maxX), y: clamp(position.y, minY, maxY) };
+    game.playerTween = null;
+    game.motionTrail.push({ ...game.motionPosition, at: Date.now() });
+    if (game.motionTrail.length > 10) game.motionTrail.shift();
+    game.rolling = {
+      dx: movement.x,
+      dy: movement.y,
+      intensity: movement.intensity,
+      angle: game.rolling.angle + ((movement.velocityX - movement.velocityY) * deltaSeconds) / Math.max(0.2, radius)
+    };
+
+    const currentCell = {
+      x: clamp(Math.floor(game.motionPosition.x), 1, game.cols - 2),
+      y: clamp(Math.floor(game.motionPosition.y), 1, game.rows - 2)
+    };
+    if (currentCell.x === game.motionLastCell.x && currentCell.y === game.motionLastCell.y) return;
+    game.motionLastCell = currentCell;
+    game.player = currentCell;
+    game.movesThisLevel += 1;
+    recordMove();
+    const timestamp = Date.now();
+    if (timestamp - game.lastMotionMoveAt > 105) {
+      game.lastMotionMoveAt = timestamp;
+      audio.play('move');
+    }
+    markInput('Stufenloses Rollen');
+    if (!handleCellArrival('motion-continuous')) return;
+    updateHud();
   }
 
   function triggerFall() {
@@ -653,6 +781,10 @@ export function initGame() {
     const fallenFrom = { ...game.player };
     game.hasKey = Boolean(savepoint.hasKey);
     game.player = { x: savepoint.x, y: savepoint.y };
+    game.motionPosition = { x: savepoint.x + 0.5, y: savepoint.y + 0.5 };
+    game.motionLastCell = { ...game.player };
+    game.motionTrail = [];
+    motionControls.resetVelocity();
     game.playerTween = { from: fallenFrom, to: { ...game.player }, started: now(), duration: 260 };
     game.rolling = { dx: 0, dy: 0, intensity: 0, angle: game.rolling.angle };
     game.fallFlashUntil = Date.now() + 520;
@@ -661,6 +793,8 @@ export function initGame() {
     audio.play('fall');
     markInput('Fallloch · zurück zum Savepoint', 'warning');
     announce(`Fallloch · zurück zu ${savepoint.label}`, 'warning');
+    const newAchievements = recordFall();
+    announceAchievements(newAchievements);
     game.routeHint = comfortPreset().showRouteHint
       ? solveMaze(game.maze, game.player, game.hasKey ? game.exit : game.key, game.cols, game.rows).slice(0, 8)
       : [];
@@ -732,14 +866,18 @@ export function initGame() {
     if (!width || !height) return;
     const colors = palette();
     ctx.clearRect(0, 0, width, height);
-    ctx.fillStyle = colors.background;
+    const atmosphere = ctx.createRadialGradient(width * 0.52, height * 0.42, 0, width * 0.52, height * 0.42, Math.max(width, height) * 0.78);
+    atmosphere.addColorStop(0, colors.floorAlt);
+    atmosphere.addColorStop(0.55, colors.background);
+    atmosphere.addColorStop(1, '#03040d');
+    ctx.fillStyle = atmosphere;
     ctx.fillRect(0, 0, width, height);
     if (!game.maze.length) return;
 
     const worldWidth = game.cols * game.cellSize;
     const worldHeight = game.rows * game.cellSize;
-    const playerCenterX = (game.player.x + 0.5) * game.cellSize;
-    const playerCenterY = (game.player.y + 0.5) * game.cellSize;
+    const playerCenterX = (motionControls.isEnabled() ? game.motionPosition.x : game.player.x + 0.5) * game.cellSize;
+    const playerCenterY = (motionControls.isEnabled() ? game.motionPosition.y : game.player.y + 0.5) * game.cellSize;
     const follow = getProfile().cameraFollow;
     const desiredViewX = playerCenterX - (width * follow) / 2;
     const desiredViewY = playerCenterY - (height * follow) / 2;
@@ -755,26 +893,16 @@ export function initGame() {
     for (let y = startY; y <= endY; y += 1) {
       for (let x = startX; x <= endX; x += 1) {
         const cell = game.maze[y][x];
-        ctx.fillStyle = (x + y) % 2 === 0 ? colors.floor : colors.floorAlt;
-        ctx.fillRect(x * game.cellSize, y * game.cellSize, game.cellSize, game.cellSize);
+        drawCellSurface(cell, colors);
         if (cell.hazard === 'hole') drawHole(cell, colors);
-        ctx.strokeStyle = colors.wall;
-        ctx.lineWidth = Math.max(1.3, game.cellSize * 0.055);
-        ctx.shadowBlur = game.cellSize > 30 ? 4 : 2;
-        ctx.shadowColor = colors.wallGlow;
-        ctx.beginPath();
-        if (cell.walls[0]) { ctx.moveTo(x * game.cellSize, y * game.cellSize); ctx.lineTo((x + 1) * game.cellSize, y * game.cellSize); }
-        if (cell.walls[1]) { ctx.moveTo((x + 1) * game.cellSize, y * game.cellSize); ctx.lineTo((x + 1) * game.cellSize, (y + 1) * game.cellSize); }
-        if (cell.walls[2]) { ctx.moveTo(x * game.cellSize, (y + 1) * game.cellSize); ctx.lineTo((x + 1) * game.cellSize, (y + 1) * game.cellSize); }
-        if (cell.walls[3]) { ctx.moveTo(x * game.cellSize, y * game.cellSize); ctx.lineTo(x * game.cellSize, (y + 1) * game.cellSize); }
-        ctx.stroke();
-        ctx.shadowBlur = 0;
+        drawCellWalls(cell, colors);
       }
     }
 
     drawRouteHint(colors);
     drawMarker(game.key, colors.key, '⌁', !game.hasKey);
     drawMarker(game.exit, colors.exit, '↗', game.hasKey);
+    drawMotionTrail(colors);
     drawPlayer(colors);
     ctx.restore();
 
@@ -787,29 +915,126 @@ export function initGame() {
     drawMiniMap(colors);
   }
 
+  function drawCellSurface(cell, colors) {
+    const size = game.cellSize;
+    const x = cell.x * size;
+    const y = cell.y * size;
+    const rhythm = (cell.x * 17 + cell.y * 31) % 5;
+    const surface = ctx.createLinearGradient(x, y, x + size, y + size);
+    surface.addColorStop(0, rhythm % 2 === 0 ? colors.floorAlt : colors.floor);
+    surface.addColorStop(0.54, colors.floor);
+    surface.addColorStop(1, rhythm === 0 ? '#080b20' : colors.background);
+    ctx.fillStyle = surface;
+    ctx.fillRect(x, y, size, size);
+
+    ctx.save();
+    ctx.globalAlpha = 0.34;
+    ctx.strokeStyle = colors.wallGlow;
+    ctx.lineWidth = Math.max(0.5, size * 0.012);
+    ctx.strokeRect(x + size * 0.14, y + size * 0.14, size * 0.72, size * 0.72);
+    if (rhythm === 0 || rhythm === 3) {
+      ctx.globalAlpha = 0.18;
+      ctx.beginPath();
+      ctx.arc(x + size * 0.74, y + size * 0.27, size * 0.12, 0.15, Math.PI * 1.22);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(x + size * 0.25, y + size * 0.78, size * 0.08, Math.PI * 1.12, Math.PI * 1.8);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawCellWalls(cell, colors) {
+    const size = game.cellSize;
+    const x = cell.x * size;
+    const y = cell.y * size;
+
+    const wallPath = () => {
+      ctx.beginPath();
+      if (cell.walls[0]) { ctx.moveTo(x, y); ctx.lineTo(x + size, y); }
+      if (cell.walls[1]) { ctx.moveTo(x + size, y); ctx.lineTo(x + size, y + size); }
+      if (cell.walls[2]) { ctx.moveTo(x, y + size); ctx.lineTo(x + size, y + size); }
+      if (cell.walls[3]) { ctx.moveTo(x, y); ctx.lineTo(x, y + size); }
+    };
+
+    ctx.save();
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    wallPath();
+    ctx.strokeStyle = 'rgba(1, 3, 14, .92)';
+    ctx.lineWidth = Math.max(4, size * 0.135);
+    ctx.shadowColor = 'rgba(0,0,0,.58)';
+    ctx.shadowBlur = size * 0.18;
+    ctx.stroke();
+
+    wallPath();
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = colors.wall;
+    ctx.lineWidth = Math.max(1.5, size * 0.052);
+    ctx.stroke();
+
+    wallPath();
+    ctx.globalAlpha = 0.52;
+    ctx.strokeStyle = colors.wallGlow;
+    ctx.lineWidth = Math.max(0.7, size * 0.016);
+    ctx.stroke();
+    ctx.restore();
+  }
+
   function drawHole(cell, colors) {
     const centerX = (cell.x + 0.5) * game.cellSize;
     const centerY = (cell.y + 0.5) * game.cellSize;
     const radius = game.cellSize * (cell.holeRadius || 0.25);
-    const glow = ctx.createRadialGradient(centerX, centerY, radius * 0.2, centerX, centerY, radius * 1.8);
-    glow.addColorStop(0, colors.hole);
-    glow.addColorStop(0.55, colors.hole);
+    const pulse = getProfile().reducedMotion ? 0 : Math.sin(now() / 280 + cell.x * 0.7 + cell.y * 0.4) * 0.08;
+    const outerRadius = radius * (1.42 + pulse);
+    const glow = ctx.createRadialGradient(centerX, centerY, radius * 0.08, centerX, centerY, outerRadius * 1.36);
+    glow.addColorStop(0, '#01020a');
+    glow.addColorStop(0.44, colors.hole);
+    glow.addColorStop(0.72, 'rgba(255, 107, 138, .18)');
     glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
     ctx.save();
     ctx.fillStyle = glow;
     ctx.beginPath();
-    ctx.arc(centerX, centerY, radius * 1.8, 0, Math.PI * 2);
+    ctx.arc(centerX, centerY, outerRadius * 1.36, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(0,0,0,.56)';
+    ctx.beginPath();
+    ctx.ellipse(centerX, centerY + radius * 0.18, radius * 1.05, radius * 0.82, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.strokeStyle = colors.holeGlow;
-    ctx.globalAlpha = 0.62;
-    ctx.lineWidth = Math.max(1.2, game.cellSize * 0.04);
+    ctx.globalAlpha = 0.76;
+    ctx.lineWidth = Math.max(1.2, game.cellSize * 0.045);
     ctx.beginPath();
-    ctx.arc(centerX, centerY, radius * 0.92, 0, Math.PI * 2);
+    ctx.arc(centerX, centerY, radius * 1.02, 0, Math.PI * 2);
     ctx.stroke();
-    ctx.globalAlpha = 0.3;
+    ctx.globalAlpha = 0.34;
+    ctx.setLineDash([game.cellSize * 0.09, game.cellSize * 0.14]);
     ctx.beginPath();
-    ctx.arc(centerX, centerY, radius * 1.18, 0, Math.PI * 2);
+    ctx.arc(centerX, centerY, outerRadius, -0.72, Math.PI * 1.6);
     ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.globalAlpha = 0.78;
+    ctx.fillStyle = colors.holeGlow;
+    ctx.beginPath();
+    ctx.arc(centerX + radius * 0.68, centerY - radius * 0.58, Math.max(1.2, game.cellSize * 0.035), 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawMotionTrail(colors) {
+    if (!motionControls.isEnabled() || game.motionTrail.length < 2 || getProfile().reducedMotion) return;
+    ctx.save();
+    game.motionTrail.forEach((point, index) => {
+      const opacity = ((index + 1) / game.motionTrail.length) * 0.18;
+      const radius = game.cellSize * (0.08 + (index / game.motionTrail.length) * 0.1);
+      ctx.globalAlpha = opacity;
+      ctx.fillStyle = colors.player;
+      ctx.shadowColor = colors.player;
+      ctx.shadowBlur = 9;
+      ctx.beginPath();
+      ctx.arc(point.x * game.cellSize, point.y * game.cellSize, radius, 0, Math.PI * 2);
+      ctx.fill();
+    });
     ctx.restore();
   }
 
@@ -856,7 +1081,11 @@ export function initGame() {
     let visualX = game.player.x;
     let visualY = game.player.y;
     let progress = 1;
-    if (game.playerTween) {
+    const continuous = motionControls.isEnabled() && game.maze.length > 0;
+    if (continuous) {
+      visualX = game.motionPosition.x - 0.5;
+      visualY = game.motionPosition.y - 0.5;
+    } else if (game.playerTween) {
       progress = clamp((now() - game.playerTween.started) / game.playerTween.duration, 0, 1);
       const eased = 1 - Math.pow(1 - progress, 3);
       visualX = game.playerTween.from.x + (game.playerTween.to.x - game.playerTween.from.x) * eased;
@@ -865,40 +1094,308 @@ export function initGame() {
     }
     const x = (visualX + 0.5) * game.cellSize;
     const y = (visualY + 0.5) * game.cellSize;
-    const pulse = getProfile().reducedMotion ? 0 : Math.sin(now() / 220) * 0.035;
+    const theme = ballTheme();
+    const rollingSpeed = Math.max(0, Number(game.motionTelemetry?.speed) || 0, (game.rolling.intensity || 0) * 2.4);
+    const pulse = getProfile().reducedMotion ? 0 : Math.sin(now() / 220) * 0.025;
     const radius = game.cellSize * (0.34 + pulse);
+    const squash = getProfile().reducedMotion ? 0 : clamp(rollingSpeed * 0.022, 0, 0.1);
     ctx.save();
-    const sphere = ctx.createRadialGradient(x - radius * 0.28, y - radius * 0.34, radius * 0.08, x, y, radius * 1.08);
-    sphere.addColorStop(0, colors.playerBright);
-    sphere.addColorStop(0.22, colors.player);
-    sphere.addColorStop(1, '#8b244e');
-    ctx.fillStyle = sphere;
-    ctx.shadowColor = colors.player;
-    ctx.shadowBlur = 18;
+    ctx.fillStyle = 'rgba(0,0,0,.34)';
+    ctx.globalAlpha = 0.7;
+    ctx.translate(x + radius * 0.1, y + radius * 0.52);
+    ctx.scale(1.18, 0.34);
     ctx.beginPath();
-    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.ellipse(0, 0, radius * 0.82, radius * 0.4, 0, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = 'rgba(255,255,255,.66)';
-    ctx.beginPath();
-    ctx.arc(x - radius * 0.25, y - radius * 0.25, radius * 0.34, 0, Math.PI * 2);
-    ctx.fill();
-    // A rotating seam makes the sphere read as a rolling ball rather than a
-    // static token. Reduced-motion mode keeps the ball readable and calm.
+    ctx.restore();
+
+    ctx.save();
     const seamRotation = getProfile().reducedMotion ? 0 : game.rolling.angle + progress * 1.35;
     ctx.translate(x, y);
-    ctx.rotate(seamRotation);
-    ctx.strokeStyle = 'rgba(255,255,255,.58)';
-    ctx.lineWidth = Math.max(1.3, game.cellSize * 0.045);
+    if (theme.pattern === 'pizza') {
+      drawDavePizza(theme, radius, seamRotation, squash);
+    } else {
+      drawSphericalBall(theme, radius, seamRotation, squash);
+    }
+    ctx.restore();
+  }
+
+  function drawSphericalBall(theme, radius, rotation, squash) {
+    ctx.save();
+    ctx.translate(0, 0);
+    ctx.rotate(rotation);
+    ctx.scale(1 + squash, 1 - squash * 0.72);
+    const sphere = ctx.createRadialGradient(-radius * 0.32, -radius * 0.38, radius * 0.06, radius * 0.08, radius * 0.1, radius * 1.12);
+    sphere.addColorStop(0, theme.highlight);
+    sphere.addColorStop(0.18, theme.base);
+    sphere.addColorStop(0.72, theme.base);
+    sphere.addColorStop(1, theme.shadow);
+    ctx.fillStyle = sphere;
+    ctx.shadowColor = theme.accent;
+    ctx.shadowBlur = 18 + squash * 70;
     ctx.beginPath();
-    ctx.arc(0, 0, radius * 0.72, -0.92, 0.92);
-    ctx.stroke();
-    ctx.rotate(-seamRotation);
-    ctx.translate(-x, -y);
-    ctx.fillStyle = '#1a1231';
-    ctx.beginPath();
-    ctx.arc(x - radius * 0.2, y - radius * 0.03, radius * 0.08, 0, Math.PI * 2);
-    ctx.arc(x + radius * 0.2, y - radius * 0.03, radius * 0.08, 0, Math.PI * 2);
+    ctx.arc(0, 0, radius, 0, Math.PI * 2);
     ctx.fill();
+
+    // A bright rim, specular spot and curved shade make every non-Dave theme
+    // read as a solid 3D ball instead of a flat coloured token.
+    ctx.shadowBlur = 0;
+    ctx.globalAlpha = 0.28;
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = Math.max(1, radius * 0.045);
+    ctx.beginPath();
+    ctx.arc(-radius * 0.08, -radius * 0.06, radius * 0.88, Math.PI * 1.05, Math.PI * 1.75);
+    ctx.stroke();
+    ctx.globalAlpha = 0.74;
+    ctx.fillStyle = 'rgba(255,255,255,.72)';
+    ctx.beginPath();
+    ctx.ellipse(-radius * 0.3, -radius * 0.36, radius * 0.24, radius * 0.13, -0.46, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 0.22;
+    ctx.strokeStyle = 'rgba(0,0,0,.78)';
+    ctx.lineWidth = Math.max(1.2, radius * 0.11);
+    ctx.beginPath();
+    ctx.arc(radius * 0.12, radius * 0.12, radius * 0.79, 0.14, Math.PI * 1.36);
+    ctx.stroke();
+
+    drawBallPattern(theme, radius, rotation);
+    drawBallFace(theme, radius);
+    ctx.restore();
+  }
+
+  function drawDavePizza(theme, radius, rotation, squash) {
+    ctx.save();
+    ctx.rotate(rotation);
+    ctx.scale(1 + squash * 0.36, 1 - squash * 0.48);
+    ctx.shadowColor = '#ff9f43';
+    ctx.shadowBlur = 16 + squash * 56;
+
+    // Dave is intentionally a pizza first and a ball second: thick baked
+    // crust, tomato sauce, melted cheese, slice cuts and visible toppings.
+    const crust = ctx.createRadialGradient(-radius * 0.24, -radius * 0.32, radius * 0.04, 0, 0, radius * 1.04);
+    crust.addColorStop(0, '#ffd774');
+    crust.addColorStop(0.6, '#c96a2f');
+    crust.addColorStop(1, '#6b2b1e');
+    ctx.fillStyle = crust;
+    ctx.beginPath();
+    ctx.arc(0, 0, radius, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#a63b2d';
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * 0.9, 0, Math.PI * 2);
+    ctx.fill();
+
+    const cheese = ctx.createRadialGradient(-radius * 0.2, -radius * 0.26, radius * 0.04, 0, 0, radius * 0.9);
+    cheese.addColorStop(0, '#fff2a8');
+    cheese.addColorStop(0.5, '#ffd653');
+    cheese.addColorStop(1, '#e49a2f');
+    ctx.fillStyle = cheese;
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * 0.82, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = 'rgba(255,247,171,.72)';
+    ctx.lineWidth = Math.max(1.1, radius * 0.055);
+    for (let slice = 0; slice < 8; slice += 1) {
+      const angle = slice * Math.PI / 4 + 0.1;
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(angle) * radius * 0.08, Math.sin(angle) * radius * 0.08);
+      ctx.lineTo(Math.cos(angle) * radius * 0.77, Math.sin(angle) * radius * 0.77);
+      ctx.stroke();
+    }
+
+    const toppings = [
+      [-0.38, -0.28, 0.105, '#c93636'], [0.23, -0.31, 0.11, '#d94a36'],
+      [0.39, 0.18, 0.095, '#b92e32'], [-0.08, 0.36, 0.105, '#cf3f35'],
+      [-0.48, 0.22, 0.07, '#4f9b55'], [0.08, -0.02, 0.065, '#4f9b55']
+    ];
+    toppings.forEach(([tx, ty, tr, color], index) => {
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(tx * radius, ty * radius, tr * radius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = index > 3 ? 'rgba(39,91,44,.72)' : 'rgba(101,30,26,.72)';
+      ctx.lineWidth = Math.max(0.7, radius * 0.025);
+      ctx.stroke();
+      if (index < 4) {
+        ctx.fillStyle = 'rgba(255,157,91,.7)';
+        ctx.beginPath();
+        ctx.arc((tx - 0.03) * radius, (ty - 0.04) * radius, tr * radius * 0.24, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    });
+
+    ctx.strokeStyle = '#ffe28a';
+    ctx.globalAlpha = 0.9;
+    ctx.lineWidth = Math.max(1.2, radius * 0.07);
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * 0.87, -2.55, 0.2);
+    ctx.stroke();
+    drawBallFace(theme, radius, true);
+    ctx.restore();
+  }
+
+  function drawBallFace(theme, radius, pizza = false) {
+    const faceColor = pizza ? 'rgba(83,35,21,.92)' : 'rgba(18,12,36,.9)';
+    ctx.fillStyle = faceColor;
+    ctx.globalAlpha = 0.92;
+    ctx.beginPath();
+    ctx.arc(-radius * 0.2, -radius * 0.03, radius * 0.075, 0, Math.PI * 2);
+    ctx.arc(radius * 0.2, -radius * 0.03, radius * 0.075, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = pizza ? 'rgba(255,250,204,.88)' : 'rgba(255,255,255,.78)';
+    ctx.beginPath();
+    ctx.arc(-radius * 0.175, -radius * 0.055, radius * 0.022, 0, Math.PI * 2);
+    ctx.arc(radius * 0.225, -radius * 0.055, radius * 0.022, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = faceColor;
+    ctx.lineWidth = Math.max(0.8, radius * 0.025);
+    ctx.beginPath();
+    ctx.arc(0, radius * 0.09, radius * 0.2, 0.18, Math.PI - 0.18);
+    ctx.stroke();
+  }
+
+  function drawBallPattern(theme, radius, rotation) {
+    if (!theme?.pattern) return;
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * 0.985, 0, Math.PI * 2);
+    ctx.clip();
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = theme.accent;
+    ctx.fillStyle = theme.accent;
+    ctx.globalAlpha = 0.74;
+    const line = Math.max(1, radius * 0.085);
+
+    if (theme.pattern === 'pizza') {
+      ctx.globalAlpha = 0.92;
+      ctx.strokeStyle = '#a8512c';
+      ctx.lineWidth = radius * 0.18;
+      ctx.beginPath();
+      ctx.arc(0, 0, radius * 0.87, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.strokeStyle = '#ffe28a';
+      ctx.lineWidth = radius * 0.08;
+      ctx.beginPath();
+      ctx.arc(0, 0, radius * 0.73, -0.6, Math.PI * 1.7);
+      ctx.stroke();
+      const toppings = [[-0.28, -0.18, 0.11], [0.28, -0.08, 0.1], [0.02, 0.28, 0.105], [-0.38, 0.27, 0.07]];
+      toppings.forEach(([tx, ty, tr], index) => {
+        ctx.fillStyle = index === 3 ? '#4e9e57' : '#cf3f35';
+        ctx.beginPath();
+        ctx.arc(tx * radius, ty * radius, tr * radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(95,32,26,.68)';
+        ctx.lineWidth = Math.max(0.7, radius * 0.025);
+        ctx.stroke();
+      });
+    } else if (theme.pattern === 'rings') {
+      ctx.lineWidth = line * 0.72;
+      [0.35, 0.58, 0.82].forEach((ring, index) => {
+        ctx.globalAlpha = 0.32 + index * 0.18;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, radius * ring, radius * ring * (0.44 + index * 0.09), rotation * 0.16, 0, Math.PI * 2);
+        ctx.stroke();
+      });
+    } else if (theme.pattern === 'crystal') {
+      ctx.globalAlpha = 0.48;
+      ctx.lineWidth = line * 0.62;
+      [[-0.62, -0.08, -0.14, -0.6, 0.12, 0.04], [0.16, -0.72, 0.56, -0.08, 0.08, 0.1], [-0.38, 0.54, 0.02, 0.08, 0.64, 0.56]].forEach((points) => {
+        ctx.beginPath();
+        ctx.moveTo(points[0] * radius, points[1] * radius);
+        ctx.lineTo(points[2] * radius, points[3] * radius);
+        ctx.lineTo(points[4] * radius, points[5] * radius);
+        ctx.closePath();
+        ctx.stroke();
+      });
+    } else if (theme.pattern === 'stars') {
+      const star = (sx, sy, sr) => {
+        ctx.beginPath();
+        for (let point = 0; point < 8; point += 1) {
+          const angle = -Math.PI / 2 + point * Math.PI / 4;
+          const size = point % 2 === 0 ? sr : sr * 0.28;
+          const px = sx + Math.cos(angle) * size;
+          const py = sy + Math.sin(angle) * size;
+          if (point === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+        ctx.fill();
+      };
+      ctx.globalAlpha = 0.86;
+      star(-radius * 0.42, -radius * 0.32, radius * 0.13);
+      star(radius * 0.34, -radius * 0.02, radius * 0.1);
+      star(-radius * 0.12, radius * 0.42, radius * 0.08);
+    } else if (theme.pattern === 'circuit') {
+      ctx.globalAlpha = 0.78;
+      ctx.lineWidth = line * 0.62;
+      [[-0.78, -0.26, -0.26, -0.26, -0.08, -0.5], [0.2, -0.7, 0.2, -0.2, 0.7, -0.2], [-0.62, 0.25, -0.2, 0.25, -0.2, 0.66], [0.14, 0.58, 0.52, 0.58, 0.52, 0.24]].forEach((points) => {
+        ctx.beginPath();
+        ctx.moveTo(points[0] * radius, points[1] * radius);
+        ctx.lineTo(points[2] * radius, points[3] * radius);
+        ctx.lineTo(points[4] * radius, points[5] * radius);
+        ctx.stroke();
+        ctx.fillStyle = theme.highlight;
+        ctx.beginPath();
+        ctx.arc(points[4] * radius, points[5] * radius, radius * 0.055, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    } else if (theme.pattern === 'leaf') {
+      ctx.globalAlpha = 0.62;
+      ctx.lineWidth = line * 0.62;
+      for (let index = -1; index <= 1; index += 1) {
+        ctx.beginPath();
+        ctx.moveTo(-radius * 0.78, index * radius * 0.2);
+        ctx.bezierCurveTo(-radius * 0.2, index * radius * 0.56, radius * 0.2, -index * radius * 0.56, radius * 0.82, -index * radius * 0.14);
+        ctx.stroke();
+      }
+    } else if (theme.pattern === 'ember' || theme.pattern === 'flare') {
+      ctx.globalAlpha = 0.68;
+      ctx.lineWidth = line * 0.7;
+      for (let index = 0; index < 4; index += 1) {
+        ctx.beginPath();
+        ctx.arc(-radius * 0.08, radius * 0.1, radius * (0.34 + index * 0.14), -1.1 + index * 0.18, 0.35 + index * 0.22);
+        ctx.stroke();
+      }
+      if (theme.pattern === 'flare') {
+        ctx.globalAlpha = 0.56;
+        for (let ray = 0; ray < 8; ray += 1) {
+          const angle = ray * Math.PI / 4 + rotation * 0.18;
+          ctx.beginPath();
+          ctx.moveTo(Math.cos(angle) * radius * 0.58, Math.sin(angle) * radius * 0.58);
+          ctx.lineTo(Math.cos(angle) * radius * 0.94, Math.sin(angle) * radius * 0.94);
+          ctx.stroke();
+        }
+      }
+    } else if (theme.pattern === 'relic') {
+      ctx.globalAlpha = 0.64;
+      ctx.lineWidth = line * 0.62;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, radius * 0.66, radius * 0.28, -0.34, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.ellipse(0, 0, radius * 0.38, radius * 0.8, 0.34, 0, Math.PI * 2);
+      ctx.stroke();
+      for (let index = 0; index < 6; index += 1) {
+        const angle = index * Math.PI / 3;
+        ctx.beginPath();
+        ctx.moveTo(Math.cos(angle) * radius * 0.7, Math.sin(angle) * radius * 0.7);
+        ctx.lineTo(Math.cos(angle) * radius * 0.87, Math.sin(angle) * radius * 0.87);
+        ctx.stroke();
+      }
+    } else {
+      ctx.globalAlpha = 0.82;
+      ctx.lineWidth = line * 0.7;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, radius * 0.73, radius * 0.32, -0.42, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.globalAlpha = 0.46;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, radius * 0.46, radius * 0.86, 0.44, 0, Math.PI * 2);
+      ctx.stroke();
+    }
     ctx.restore();
   }
 
@@ -940,13 +1437,17 @@ export function initGame() {
     const width = rect.width || 128;
     const height = rect.height || 128;
     miniCtx.clearRect(0, 0, width, height);
-    miniCtx.fillStyle = '#080c1e';
+    const miniAtmosphere = miniCtx.createLinearGradient(0, 0, width, height);
+    miniAtmosphere.addColorStop(0, colors.floorAlt);
+    miniAtmosphere.addColorStop(1, colors.background);
+    miniCtx.fillStyle = miniAtmosphere;
     miniCtx.fillRect(0, 0, width, height);
     if (!game.maze.length) return;
     const scale = Math.min((width - 12) / game.cols, (height - 12) / game.rows) * getProfile().minimapZoom;
     const offsetX = (width - game.cols * scale) / 2;
     const offsetY = (height - game.rows * scale) / 2;
-    miniCtx.strokeStyle = 'rgba(140, 130, 255, .6)';
+    miniCtx.strokeStyle = colors.wall;
+    miniCtx.globalAlpha = 0.72;
     miniCtx.lineWidth = Math.max(0.5, scale * 0.14);
     miniCtx.beginPath();
     for (let y = 0; y < game.rows; y += 1) {
@@ -967,10 +1468,14 @@ export function initGame() {
       }
     }
     miniCtx.stroke();
+    miniCtx.globalAlpha = 1;
     drawMiniDot(game.savepoint, colors.accent || colors.exit, scale, offsetX, offsetY);
     drawMiniDot(game.exit, colors.exit, scale, offsetX, offsetY);
     if (!game.hasKey) drawMiniDot(game.key, colors.key, scale, offsetX, offsetY);
-    drawMiniDot(game.player, colors.player, scale, offsetX, offsetY);
+    const miniPlayer = motionControls.isEnabled()
+      ? { x: game.motionPosition.x - 0.5, y: game.motionPosition.y - 0.5 }
+      : game.player;
+    drawMiniDot(miniPlayer, ballTheme().base || colors.player, scale, offsetX, offsetY);
   }
 
   function drawMiniDot(point, color, scale, offsetX, offsetY) {
@@ -995,9 +1500,9 @@ export function initGame() {
     elements.achievementsGrid.innerHTML = visible.map((achievement) => {
       const isUnlocked = unlocked.has(achievement.id);
       const progress = Math.min(100, Math.round((getAchievementProgress(achievement, profile) / achievement.threshold) * 100));
-      return `<article class="achievement-card ${isUnlocked ? 'is-unlocked' : ''}">
+      return `<article class="achievement-card ${isUnlocked ? 'is-unlocked' : ''} ${achievement.negative ? 'is-negative' : ''}">
         <div class="achievement-number">${String(achievement.number).padStart(4, '0')}</div>
-        <div class="achievement-icon">${isUnlocked ? '✦' : '◇'}</div>
+        <div class="achievement-icon">${achievement.negative ? (isUnlocked ? '⚠' : '◌') : (isUnlocked ? '✦' : '◇')}</div>
         <div class="achievement-copy"><h3>${escapeHtml(achievement.title)}</h3><p>${escapeHtml(achievement.description)}</p>
         <div class="achievement-bar"><span style="width:${isUnlocked ? 100 : progress}%"></span></div></div>
       </article>`;
@@ -1036,6 +1541,8 @@ export function initGame() {
     elements.invertMotion.checked = profile.invertMotion;
     elements.hapticsToggle.checked = profile.haptics;
     elements.themeSelect.value = profile.theme;
+    elements.ballTheme.value = profile.ballTheme;
+    syncBallThemePreview();
     elements.comfortMode.value = profile.comfortMode;
     elements.comfortModeDescription.textContent = CONFIG.comfortModes[profile.comfortMode]?.description || CONFIG.comfortModes.standard.description;
     elements.cameraFollow.value = profile.cameraFollow;
@@ -1052,6 +1559,8 @@ export function initGame() {
     elements.sfxVolume.value = profile.sfxVolume;
     elements.musicToggle.checked = profile.musicEnabled;
     elements.musicVolume.value = profile.musicVolume;
+    elements.ambientTrack.value = profile.ambientTrack;
+    elements.spaceFxToggle.checked = profile.spaceFxEnabled;
     motionControls.setSensitivity(profile.motionSensitivity);
     motionControls.setInvert(profile.invertMotion);
     applyAccessibility();
@@ -1118,6 +1627,12 @@ export function initGame() {
     });
     elements.hapticsToggle.addEventListener('change', () => setHaptics(elements.hapticsToggle.checked));
     elements.themeSelect.addEventListener('change', () => { updateProfile({ theme: elements.themeSelect.value }); draw(); });
+    elements.ballTheme.addEventListener('change', () => {
+      setBallTheme(elements.ballTheme.value);
+      syncBallThemePreview();
+      audio.play('click');
+      draw();
+    });
     elements.comfortMode.addEventListener('change', () => {
       setComfortMode(elements.comfortMode.value);
       elements.comfortModeDescription.textContent = CONFIG.comfortModes[elements.comfortMode.value].description;
@@ -1153,6 +1668,8 @@ export function initGame() {
     elements.sfxVolume.addEventListener('input', () => { const value = Number(elements.sfxVolume.value); audio.setSfxVolume(value); setAudioPreferences({ sfxVolume: value }); });
     elements.musicToggle.addEventListener('change', () => { audio.unlock(); audio.setMusicEnabled(elements.musicToggle.checked); setAudioPreferences({ musicEnabled: elements.musicToggle.checked }); });
     elements.musicVolume.addEventListener('input', () => { const value = Number(elements.musicVolume.value); audio.setMusicVolume(value); setAudioPreferences({ musicVolume: value }); });
+    elements.ambientTrack.addEventListener('change', () => { audio.unlock(); audio.setAmbientTrack(elements.ambientTrack.value); setAudioPreferences({ ambientTrack: elements.ambientTrack.value }); });
+    elements.spaceFxToggle.addEventListener('change', () => { audio.unlock(); audio.setSpaceFxEnabled(elements.spaceFxToggle.checked); setAudioPreferences({ spaceFxEnabled: elements.spaceFxToggle.checked }); });
     elements.backupExportBtn.addEventListener('click', writeBackupCode);
     elements.backupCopyBtn.addEventListener('click', copyBackupCode);
     elements.backupImportBtn.addEventListener('click', importBackupCode);
@@ -1249,10 +1766,17 @@ export function initGame() {
   if (!getProfile().hasSeenTutorial) openTutorial();
   const initialUnlocked = evaluateAchievements();
   if (initialUnlocked.length > 0) announceAchievements(initialUnlocked);
+  let renderFrameAt = now();
   animationFrame = requestAnimationFrame(renderLoop);
 
-  function renderLoop() {
-    if (game.active && !game.paused) draw();
+  function renderLoop(timestamp) {
+    const frameAt = Number(timestamp) || now();
+    const deltaSeconds = clamp((frameAt - renderFrameAt) / 1000, 0, 0.08);
+    renderFrameAt = frameAt;
+    if (game.active && !game.paused && !game.completed) {
+      moveContinuousBall(deltaSeconds);
+      draw();
+    }
     animationFrame = requestAnimationFrame(renderLoop);
   }
 }

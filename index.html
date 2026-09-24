@@ -53,7 +53,7 @@
     }
     .menu-screen::before, .menu-screen::after { content: ""; position: absolute; inset: 0; pointer-events: none; }
     .menu-screen::before { opacity: .16; background-image: linear-gradient(rgba(166,150,255,.12) 1px, transparent 1px), linear-gradient(90deg, rgba(166,150,255,.12) 1px, transparent 1px); background-size: 42px 42px; mask-image: linear-gradient(to bottom, black, transparent 84%); }
-    .menu-screen::after { background: url('./assets/generated/key-and-exit.jpg') right -8% bottom -4% / min(780px, 78vw) auto no-repeat; opacity: .17; mix-blend-mode: screen; }
+    .menu-screen::after { background: linear-gradient(90deg, rgba(7,9,24,.98) 0%, rgba(7,9,24,.82) 36%, rgba(7,9,24,.22) 82%, rgba(7,9,24,.08) 100%), url('./assets/generated/main-menu-hero-v2.jpg') center / cover no-repeat; opacity: .72; mix-blend-mode: screen; }
     .menu-wrap { z-index: 1; width: min(1120px, 100%); display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(320px, .9fr); gap: clamp(24px, 6vw, 78px); align-items: center; }
     .menu-copy { padding: 16px 0; }
     .brand-lockup { display: flex; align-items: center; gap: 14px; margin-bottom: 26px; }
@@ -103,7 +103,7 @@
     .hud-progress-top { display: flex; justify-content: space-between; gap: 8px; color: var(--muted); font-size: .68rem; }
     .xp-track { height: 6px; border-radius: 999px; overflow: hidden; background: rgba(255,255,255,.1); }
     .xp-fill { height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, var(--primary), var(--accent)); transition: width .3s ease; }
-    .game-content { min-height: 0; flex: 1; width: min(1440px, 100%); margin: 0 auto; padding: clamp(12px, 2vw, 26px); display: grid; grid-template-columns: minmax(0, 1fr) minmax(230px, 280px); gap: clamp(12px, 2vw, 24px); overflow: auto; }
+    .game-content { min-height: 0; flex: 1; width: min(1440px, 100%); margin: 0 auto; padding: clamp(12px, 2vw, 26px); display: grid; grid-template-columns: minmax(0, 1fr) minmax(230px, 280px); gap: clamp(12px, 2vw, 24px); overflow: auto; overscroll-behavior: contain; }
     .maze-panel { min-width: 0; min-height: 0; display: flex; flex-direction: column; gap: 10px; }
     .maze-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; min-height: 44px; padding: 10px 12px; border-radius: 16px; background: rgba(17,21,44,.72); border: 1px solid rgba(166,150,255,.16); }
     .toolbar-body { display: flex; flex: 1 1 100%; flex-wrap: wrap; align-items: center; gap: 8px; }
@@ -136,9 +136,12 @@
     .legend-dot.key { background: var(--gold); }
     .legend-dot.exit { background: var(--accent); }
     .legend-dot.hole { background: var(--danger); box-shadow: 0 0 7px var(--danger); }
-    .control-deck { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-width: 210px; margin: 2px auto 0; }
-    .dpad-btn { min-height: 46px; cursor: pointer; border-radius: 12px; color: var(--ink); background: rgba(124,108,255,.14); border: 1px solid rgba(166,150,255,.2); font-size: 1.1rem; touch-action: manipulation; }
-    .dpad-btn:hover { background: rgba(124,108,255,.3); }
+    .control-deck { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; max-width: 238px; margin: 2px auto 0; padding: 10px; border-radius: 22px; background: linear-gradient(145deg, rgba(7,9,24,.7), rgba(25,29,67,.72)); border: 1px solid rgba(166,150,255,.16); box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 12px 24px rgba(0,0,0,.18); }
+    .dpad-btn { position: relative; min-height: 56px; cursor: pointer; border-radius: 16px; color: var(--ink); background: radial-gradient(circle at 35% 25%, rgba(255,255,255,.16), transparent 34%), linear-gradient(145deg, rgba(124,108,255,.28), rgba(44,42,112,.58)); border: 1px solid rgba(166,150,255,.36); box-shadow: inset 0 1px 0 rgba(255,255,255,.09), 0 7px 15px rgba(3,4,18,.28); font-size: 1.28rem; font-weight: 900; text-shadow: 0 2px 10px rgba(54,224,197,.3); touch-action: manipulation; transition: transform .14s ease, background .14s ease, border-color .14s ease, box-shadow .14s ease; }
+    .dpad-btn::after { content: ''; position: absolute; inset: 5px; border-radius: 12px; border: 1px solid rgba(255,255,255,.06); pointer-events: none; }
+    .dpad-btn:hover { background: radial-gradient(circle at 35% 25%, rgba(255,255,255,.2), transparent 34%), linear-gradient(145deg, rgba(124,108,255,.48), rgba(44,42,112,.72)); border-color: rgba(54,224,197,.55); box-shadow: 0 0 20px rgba(54,224,197,.16), inset 0 1px 0 rgba(255,255,255,.12); }
+    .dpad-btn:active, .dpad-btn.is-pressed { transform: translateY(2px) scale(.96); background: linear-gradient(145deg, rgba(54,224,197,.42), rgba(60,52,154,.72)); border-color: rgba(54,224,197,.78); box-shadow: 0 0 24px rgba(54,224,197,.25), inset 0 2px 7px rgba(0,0,0,.24); }
+    .control-hint { margin: 10px auto 0; color: var(--muted); font-size: .68rem; text-align: center; }
     .dpad-btn:nth-child(1) { grid-column: 2; }
     .dpad-btn:nth-child(2) { grid-column: 1; grid-row: 2; }
     .dpad-btn:nth-child(3) { grid-column: 2; grid-row: 2; }
@@ -164,9 +167,27 @@
     .settings-section { margin: 22px 0 0; padding-top: 14px; border-top: 1px solid rgba(255,255,255,.1); }
     .settings-section-title { margin: 0 0 4px; color: var(--accent); font-size: .72rem; font-weight: 900; letter-spacing: .16em; text-transform: uppercase; }
     .settings-section-copy { margin: 0 0 8px; color: var(--muted); font-size: .76rem; line-height: 1.45; }
+    .settings-links { display: grid; gap: 10px; margin: 12px 0 2px; }
+    .settings-link { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; align-items: center; gap: 11px; min-height: 68px; padding: 11px 13px; color: var(--ink); text-decoration: none; background: linear-gradient(120deg, rgba(54,224,197,.10), rgba(124,108,255,.12)); border: 1px solid rgba(166,150,255,.22); border-radius: 14px; transition: transform .16s ease, border-color .16s ease, background .16s ease; }
+    .settings-link:hover { transform: translateY(-2px); border-color: rgba(54,224,197,.58); background: linear-gradient(120deg, rgba(54,224,197,.16), rgba(124,108,255,.18)); }
+    .settings-link-icon { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 12px; color: #071018; background: linear-gradient(135deg, var(--accent), var(--primary-bright)); font-weight: 900; box-shadow: 0 0 20px rgba(54,224,197,.2); }
+    .settings-link-copy { min-width: 0; }
+    .settings-link-copy strong { display: block; font-size: .9rem; }
+    .settings-link-copy span { display: block; margin-top: 3px; color: var(--muted); font-size: .73rem; line-height: 1.35; overflow-wrap: anywhere; }
+    .settings-link-arrow { color: var(--accent); font-size: 1.2rem; }
     .form-copy { min-width: 0; }
     .form-copy strong { display: block; font-size: .91rem; }
     .form-copy span { display: block; margin-top: 4px; color: var(--muted); font-size: .76rem; line-height: 1.45; }
+    .ball-theme-control { display: flex; align-items: center; justify-content: flex-end; gap: 10px; min-width: 0; }
+    .ball-theme-preview { position: relative; width: 48px; height: 48px; flex: 0 0 48px; display: grid; place-items: center; overflow: hidden; border-radius: 50%; color: var(--ball-highlight); background: radial-gradient(circle at 31% 25%, var(--ball-highlight) 0 9%, var(--ball-base) 27%, var(--ball-shadow) 100%); border: 2px solid color-mix(in srgb, var(--ball-accent) 72%, white 8%); box-shadow: 0 0 22px color-mix(in srgb, var(--ball-accent) 46%, transparent), inset -4px -5px 8px rgba(0,0,0,.25), inset 4px 4px 8px rgba(255,255,255,.22); font-size: 1.1rem; }
+    .ball-theme-preview::before { content: ''; position: absolute; inset: 8px 2px 8px 2px; border: 2px solid color-mix(in srgb, var(--ball-accent) 72%, transparent); border-radius: 50%; transform: rotate(-24deg); opacity: .82; }
+    .ball-theme-preview[data-pattern="pizza"]::before { inset: 5px; border: 3px solid #a8512c; border-left-color: #ffe28a; border-radius: 50%; transform: rotate(18deg); }
+    .ball-theme-preview[data-pattern="pizza"] { background: radial-gradient(circle at 34% 27%, #fff2a8 0 8%, #ffd653 30%, #b9472c 72%, #67251c 100%); font-size: 1.42rem; }
+    .ball-theme-preview[data-pattern="pizza"]::after { content: ''; }
+    .ball-theme-preview[data-pattern="stars"]::after { content: '✦ · ✧'; position: absolute; color: var(--ball-highlight); font-size: .62rem; letter-spacing: 3px; }
+    .ball-theme-preview[data-pattern="circuit"]::before { border-radius: 34%; transform: rotate(0); border-style: dashed; }
+    .ball-theme-preview[data-pattern="crystal"]::before { transform: rotate(45deg) scale(.8); border-radius: 10%; }
+    .ball-theme-control select { width: min(170px, 42vw); max-width: 170px; min-width: 0; }
     select, input[type="number"] { min-height: 42px; color: var(--ink); background: rgba(7,9,24,.65); border: 1px solid rgba(255,255,255,.14); border-radius: 10px; padding: 8px 10px; }
     input[type="range"] { width: min(190px, 38vw); accent-color: var(--accent); }
     input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--accent); }
@@ -179,14 +200,18 @@
     .achievement-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 9px; max-height: 54dvh; overflow: auto; padding-right: 4px; }
     .achievement-card { display: grid; grid-template-columns: 35px 30px 1fr; gap: 9px; align-items: start; min-height: 90px; padding: 11px; border-radius: 13px; background: rgba(7,9,24,.52); border: 1px solid rgba(255,255,255,.08); opacity: .65; }
     .achievement-card.is-unlocked { opacity: 1; border-color: rgba(54,224,197,.35); background: rgba(54,224,197,.07); }
+    .achievement-card.is-negative { border-color: rgba(255,107,138,.18); background: rgba(255,107,138,.045); }
+    .achievement-card.is-negative.is-unlocked { border-color: rgba(255,107,138,.48); background: rgba(255,107,138,.09); }
     .achievement-number { color: var(--muted); font-size: .64rem; font-variant-numeric: tabular-nums; padding-top: 3px; }
     .achievement-icon { color: var(--muted); font-size: 1.4rem; }
     .is-unlocked .achievement-icon { color: var(--gold); text-shadow: 0 0 15px rgba(255,200,87,.6); }
+    .achievement-card.is-negative .achievement-icon { color: var(--danger); }
+    .achievement-card.is-negative .achievement-bar span { background: linear-gradient(90deg, var(--danger), var(--gold)); }
     .achievement-copy h3 { margin: 0; font-size: .82rem; }
     .achievement-copy p { margin: 4px 0 8px; color: var(--muted); font-size: .7rem; line-height: 1.35; }
     .achievement-bar { height: 4px; overflow: hidden; border-radius: 999px; background: rgba(255,255,255,.1); }
     .achievement-bar span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--primary), var(--accent)); }
-    .achievement-summary { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin-bottom: 16px; }
+    .achievement-summary { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; margin-bottom: 16px; }
     .achievement-collection { padding: 10px; border-radius: 12px; background: rgba(7,9,24,.48); border: 1px solid rgba(255,255,255,.08); }
     .achievement-collection strong { display: block; font-size: .75rem; }
     .achievement-collection span { display: block; margin-top: 4px; color: var(--muted); font-size: .68rem; }
@@ -198,10 +223,14 @@
     .recap-stat { padding: 10px 11px; border-radius: 12px; background: rgba(7,9,24,.5); border: 1px solid rgba(255,255,255,.08); }
     .recap-stat span { display: block; color: var(--muted); font-size: .66rem; text-transform: uppercase; letter-spacing: .08em; }
     .recap-stat strong { display: block; margin-top: 5px; color: var(--ink); font-size: 1rem; }
-    .tutorial-card { width: min(660px, 100%); text-align: center; background: radial-gradient(circle at 50% 0%, rgba(54,224,197,.18), transparent 48%), linear-gradient(145deg, #171d3b, #0c1028); }
-    .tutorial-visual { display: grid; place-items: center; width: 100%; min-height: 128px; margin: 4px 0 18px; border-radius: 18px; color: var(--accent); background: linear-gradient(135deg, rgba(54,224,197,.08), rgba(124,108,255,.15)); border: 1px solid rgba(166,150,255,.22); font-size: 4rem; }
+    .tutorial-card { position: relative; width: min(700px, 100%); text-align: center; overflow: hidden; background: radial-gradient(circle at 50% 0%, rgba(54,224,197,.2), transparent 48%), linear-gradient(145deg, #171d3b, #0c1028); }
+    .tutorial-card::before { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .25; background-image: linear-gradient(rgba(166,150,255,.11) 1px, transparent 1px), linear-gradient(90deg, rgba(166,150,255,.11) 1px, transparent 1px); background-size: 28px 28px; mask-image: linear-gradient(to bottom, black, transparent 72%); }
+    .tutorial-card > * { position: relative; z-index: 1; }
+    .tutorial-visual { position: relative; display: grid; place-items: center; width: 100%; min-height: 150px; margin: 4px 0 20px; overflow: hidden; border-radius: 22px; color: var(--accent); background: linear-gradient(180deg, rgba(7,9,24,.1), rgba(7,9,24,.72)), url('./assets/generated/welcome-tutorial-hero-v2.jpg') center / cover no-repeat; border: 1px solid rgba(166,150,255,.3); box-shadow: inset 0 0 35px rgba(54,224,197,.08), 0 16px 34px rgba(0,0,0,.2); font-size: 4.5rem; text-shadow: 0 0 28px rgba(54,224,197,.75); }
+    .tutorial-visual::before { content: ''; position: absolute; width: 210px; height: 210px; border: 1px solid rgba(54,224,197,.28); border-radius: 50%; box-shadow: 0 0 0 18px rgba(124,108,255,.06), 0 0 0 38px rgba(54,224,197,.035); }
+    .tutorial-visual::after { content: ''; position: absolute; width: 9px; height: 9px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 18px var(--gold); transform: translate(72px, -54px); }
     .tutorial-card h2 { margin: 0; font-size: clamp(1.5rem, 5vw, 2.2rem); }
-    .tutorial-card p { min-height: 50px; color: var(--muted); line-height: 1.55; }
+    .tutorial-card p { min-height: 84px; color: var(--muted); line-height: 1.6; margin-left: auto; margin-right: auto; max-width: 570px; }
     .tutorial-progress { display: flex; justify-content: center; gap: 8px; margin: 18px 0 4px; }
     .tutorial-dot { width: 9px; height: 9px; border-radius: 50%; background: #485486; }
     .tutorial-dot.is-active { width: 28px; border-radius: 8px; background: var(--accent); }
@@ -236,11 +265,14 @@
       .menu-copy { text-align: center; }
       .brand-lockup, .menu-tags { justify-content: center; }
       .menu-intro { margin-left: auto; margin-right: auto; }
-      .game-content { grid-template-columns: 1fr; overflow-y: auto; align-content: start; }
-      .canvas-viewport { flex: 0 0 auto; height: min(48dvh, 500px); max-height: none; min-height: 230px; }
-      .side-panel { display: grid; grid-template-columns: minmax(150px, .8fr) minmax(170px, 1.2fr); align-items: start; }
-      .side-card:first-child { grid-row: span 2; }
-      .side-card:last-child { grid-column: 2; }
+      .game-content { display: flex; flex-direction: column; align-items: stretch; overflow-x: hidden; overflow-y: auto; align-content: start; padding-bottom: max(18px, env(safe-area-inset-bottom)); }
+      .maze-panel { flex: 0 0 auto; }
+      .canvas-viewport { flex: 0 0 auto; height: clamp(270px, 43dvh, 500px); max-height: none; min-height: 270px; aspect-ratio: auto; }
+      .side-panel { display: grid; grid-template-columns: 1fr; grid-template-areas: "controls" "map" "actions"; align-items: start; flex: 0 0 auto; }
+      .side-card[data-panel="controls"] { grid-area: controls; }
+      .side-card[data-panel="map"] { grid-area: map; }
+      .side-card[data-panel="actions"] { grid-area: actions; }
+      #miniMapCanvas { max-width: 100%; }
     }
     @media (max-width: 560px) {
       .menu-screen { align-items: flex-start; padding-top: 28px; }
@@ -249,25 +281,37 @@
       .menu-intro { font-size: .92rem; margin-top: 20px; }
       .menu-tags { margin-bottom: 18px; }
       .menu-card { padding: 18px; }
-      .game-header { gap: 8px; }
-      .game-title { min-width: 76px; font-size: .7rem; }
+      .game-header { gap: 6px; padding-left: max(8px, env(safe-area-inset-left)); padding-right: max(8px, env(safe-area-inset-right)); }
+      .game-title { min-width: 64px; font-size: .68rem; }
       .last-input { display: none; }
-      .hud-progress { width: 92px; }
-      .icon-button { width: 38px; height: 38px; border-radius: 11px; }
+      .hud-progress { width: clamp(72px, 22vw, 92px); }
+      .icon-button { width: 36px; height: 36px; border-radius: 11px; }
       .hud-progress-top { font-size: .58rem; }
-      .game-content { padding: 10px; gap: 10px; }
-      .canvas-viewport { height: min(46dvh, 430px); min-height: 230px; border-radius: 16px; }
-      .side-panel { grid-template-columns: 1fr 1fr; gap: 8px; }
+      .game-content { padding: 10px 10px max(18px, env(safe-area-inset-bottom)); gap: 12px; }
+      .canvas-viewport { height: clamp(250px, 41dvh, 390px); min-height: 250px; border-radius: 16px; }
+      .side-panel { grid-template-columns: 1fr; grid-template-areas: "controls" "map" "actions"; gap: 10px; }
       .side-card { padding: 11px; border-radius: 14px; }
       .side-card h2 { font-size: .65rem; }
-      .side-card:first-child { grid-row: auto; }
-      .side-card:last-child { grid-column: auto; }
+      #miniMapCanvas { width: min(100%, 280px); margin-left: auto; margin-right: auto; }
       .legend { font-size: .66rem; gap: 5px; }
       .maze-footer { font-size: .68rem; }
       .achievement-grid { grid-template-columns: 1fr; }
       .form-row { align-items: flex-start; }
+      .ball-theme-control { flex-wrap: wrap; }
+      .ball-theme-control select { width: min(154px, 47vw); }
       .achievement-summary { grid-template-columns: repeat(2, 1fr); }
       .recap-grid { grid-template-columns: 1fr 1fr; }
+      .tutorial-card p { min-height: 118px; font-size: .9rem; }
+      .tutorial-nav { align-items: stretch; flex-direction: column-reverse; }
+      .tutorial-nav .button-row { width: 100%; }
+      .tutorial-nav .button-row .button { min-width: 0; }
+    }
+    @media (max-width: 380px) {
+      .game-header { gap: 4px; padding-left: 6px; padding-right: 6px; }
+      .game-title { min-width: 54px; font-size: .62rem; letter-spacing: .05em; }
+      .game-title span { font-size: .62rem; }
+      .hud-progress { width: 68px; }
+      .icon-button { width: 34px; height: 34px; border-radius: 10px; font-size: 1rem; }
     }
   </style>
 </head>
@@ -285,7 +329,7 @@
         <div class="menu-tags"><span class="tag">∞ Endless</span><span class="tag">◉ Camera focus</span><span class="tag">⌁ Motion play</span><span class="tag">✦ 1,000 achievements</span></div>
       </div>
       <div class="menu-card">
-        <div class="profile-row"><div><div class="eyebrow">Your expedition</div><div id="menuRank" class="profile-rank">Rang 1</div><div id="menuRankTitle" class="profile-title">Newcomer</div></div><div class="version-pill">v2.2.1 Android-ready</div></div>
+        <div class="profile-row"><div><div class="eyebrow">Your expedition</div><div id="menuRank" class="profile-rank">Rang 1</div><div id="menuRankTitle" class="profile-title">Newcomer</div></div><div class="version-pill">v2.4.3 Android-ready</div></div>
         <div class="stat-grid"><div class="stat-card"><div class="stat-label">Fortschritt</div><div id="menuLevel" class="stat-value">Level 1</div></div><div class="stat-card"><div class="stat-label">Achievements</div><div id="menuAchievements" class="stat-value">0 / 1000</div></div><div class="stat-card"><div class="stat-label">Steuerung</div><div class="stat-value">Touch</div></div></div>
         <div class="daily-card"><div><div class="eyebrow">Daily route</div><strong id="dailyDate">Heute · Level 1</strong><span id="dailyStatus">Ein optionaler Seed für deine tägliche Bestzeit.</span></div><button id="dailyChallengeBtn" class="button">Heute spielen</button></div>
         <div class="menu-actions">
@@ -316,8 +360,8 @@
         <div class="maze-footer"><span>Swipe, Pfeile oder D-Pad · <span class="muted">ESC pausiert</span></span><span id="levelTimer" class="timer">00:00</span></div>
       </div>
       <aside class="side-panel" aria-label="Spielinformationen">
+        <div class="side-card collapsible" data-panel="controls"><div class="side-card-head"><h2>Roll-Steuerung</h2><button class="panel-toggle" data-toggle-panel="controls" aria-expanded="true" aria-label="Bereich minimieren">−</button></div><div class="collapsible-body"><div class="control-deck"><button class="dpad-btn" data-dx="0" data-dy="-1" aria-label="Nach oben">▲</button><button class="dpad-btn" data-dx="-1" data-dy="0" aria-label="Nach links">◀</button><button class="dpad-btn" data-dx="0" data-dy="1" aria-label="Nach unten">▼</button><button class="dpad-btn" data-dx="1" data-dy="0" aria-label="Nach rechts">▶</button></div><div class="control-hint">Gedrückt halten = weiterrollen</div></div></div>
         <div class="side-card collapsible" data-panel="map"><div class="side-card-head"><h2>Expedition map</h2><button class="panel-toggle" data-toggle-panel="map" aria-expanded="true" aria-label="Bereich minimieren">−</button></div><div class="collapsible-body"><canvas id="miniMapCanvas" aria-label="Mini-Karte des gesamten Labyrinths"></canvas><div class="legend"><div class="legend-line"><span class="legend-dot player"></span>Du</div><div class="legend-line"><span class="legend-dot key"></span>Schlüssel</div><div class="legend-line"><span class="legend-dot exit"></span>Ausgang</div><div class="legend-line"><span class="legend-dot hole"></span>Fallloch</div></div></div></div>
-        <div class="side-card collapsible" data-panel="controls"><div class="side-card-head"><h2>Move controls</h2><button class="panel-toggle" data-toggle-panel="controls" aria-expanded="true" aria-label="Bereich minimieren">−</button></div><div class="collapsible-body"><div class="control-deck"><button class="dpad-btn" data-dx="0" data-dy="-1" aria-label="Nach oben">▲</button><button class="dpad-btn" data-dx="-1" data-dy="0" aria-label="Nach links">◀</button><button class="dpad-btn" data-dx="0" data-dy="1" aria-label="Nach unten">▼</button><button class="dpad-btn" data-dx="1" data-dy="0" aria-label="Nach rechts">▶</button></div></div></div>
         <div class="side-card side-actions collapsible" data-panel="actions"><div class="side-card-head"><h2>Expedition</h2><button class="panel-toggle" data-toggle-panel="actions" aria-expanded="true" aria-label="Bereich minimieren">−</button></div><div class="collapsible-body"><button id="gameSettingsBtn2" class="button">⚙ Spieloptionen</button><button id="pauseBtn2" class="button">Ⅱ Pause</button></div></div>
       </aside>
     </main>
@@ -329,10 +373,11 @@
     <div class="settings-section"><h3 class="settings-section-title">Spielgefühl</h3><p class="settings-section-copy">Wähle, wie viel Orientierung und Druck du während eines Runs möchtest.</p></div>
     <div class="form-row"><div class="form-copy"><strong>Komfort-Preset</strong><span id="comfortModeDescription">Die ausgewogene Labyrinthia-Erfahrung.</span></div><select id="comfortMode" aria-label="Komfort-Preset"><option value="relaxed">Relaxed</option><option value="standard">Standard</option><option value="focused">Focused</option></select></div>
     <div class="form-row"><div class="form-copy"><strong>Gerätesensoren / Kugelbrett-Steuerung</strong><span>Neige dein Android-Gerät. Mehr Neigung baut physikalisch mehr Rollgeschwindigkeit auf.</span><span id="motionTelemetry" class="motion-telemetry">Sensor wartet · aktiviere die Kugelbrett-Steuerung</span></div><input id="motionToggle" type="checkbox" aria-label="Sensorsteuerung aktivieren"></div>
-    <div class="form-row"><div class="form-copy"><strong>Sensor-Empfindlichkeit</strong><span>Wie stark eine Neigung die nächste Bewegung auslöst.</span></div><div style="display:flex;align-items:center;gap:8px"><input id="motionSensitivity" type="range" min="0.5" max="5" step="0.1" value="2.2" aria-label="Sensor-Empfindlichkeit"><span id="motionSensitivityValue" class="range-value">2.2×</span></div></div>
+    <div class="form-row"><div class="form-copy"><strong>Sensor-Empfindlichkeit</strong><span>Skaliert die physikalische Beschleunigung der Kugel, nicht die Schrittweite.</span></div><div style="display:flex;align-items:center;gap:8px"><input id="motionSensitivity" type="range" min="0.5" max="2.5" step="0.1" value="1.0" aria-label="Sensor-Empfindlichkeit"><span id="motionSensitivityValue" class="range-value">1.0×</span></div></div>
     <div class="form-row"><div class="form-copy"><strong>Steuerung invertieren</strong><span>Dreht die Neigungsrichtung für dein bevorzugtes Spielgefühl um.</span></div><input id="invertMotion" type="checkbox" aria-label="Sensorsteuerung invertieren"></div>
     <div class="form-row"><div class="form-copy"><strong>Haptisches Feedback</strong><span>Kurze Vibration bei Bewegung, Schlüssel und Abschluss.</span></div><input id="hapticsToggle" type="checkbox" aria-label="Haptisches Feedback aktivieren"></div>
     <div class="form-row"><div class="form-copy"><strong>Maze theme</strong><span>Farbstimmung für deine Expedition.</span></div><select id="themeSelect" aria-label="Maze theme"><option value="neon">Neon Night</option><option value="ember">Ember Temple</option><option value="forest">Verdant Run</option><option value="ice">Ice Circuit</option></select></div>
+    <div class="form-row"><div class="form-copy"><strong>Kugelprofil</strong><span id="ballThemeDescription">Nova · Rosé Neon mit einer hellen Orbit-Naht.</span></div><div class="ball-theme-control"><span id="ballThemePreview" class="ball-theme-preview" data-pattern="orbit" aria-label="Kugelvorschau Nova">✦</span><select id="ballTheme" aria-label="Kugelprofil"><option value="nova">Nova</option><option value="luma">Luma</option><option value="cinder">Cinder</option><option value="moss">Moss</option><option value="glacia">Glacia</option><option value="nyx">Nyx</option><option value="aurelia">Aurelia</option><option value="sol">Sol</option><option value="echo">Echo</option><option value="dave">Dave · Pizzakugel</option></select></div></div>
     <div class="settings-section"><h3 class="settings-section-title">Kamera &amp; Orientierung</h3><p class="settings-section-copy">Die Spielerfigur bleibt groß; diese Regler bestimmen nur, wie viel Raum um sie herum sichtbar ist.</p></div>
     <div class="form-row"><div class="form-copy"><strong>Kameraführung</strong><span>Mehr Fokus hält dich zentral, weniger Fokus zeigt mehr voraus.</span></div><div style="display:flex;align-items:center;gap:8px"><input id="cameraFollow" type="range" min="0.55" max="1" step="0.05" value="1" aria-label="Kameraführung"><span id="cameraFollowValue" class="range-value">100%</span></div></div>
     <div class="form-row"><div class="form-copy"><strong>Minimap-Zoom</strong><span>Mehr Zoom macht Routen lesbarer, zeigt aber weniger Rand.</span></div><div style="display:flex;align-items:center;gap:8px"><input id="minimapZoom" type="range" min="0.8" max="1.8" step="0.1" value="1" aria-label="Minimap-Zoom"><span id="minimapZoomValue" class="range-value">1.0×</span></div></div>
@@ -348,11 +393,14 @@
     <div class="form-row"><div class="form-copy"><strong>SFX-Lautstärke</strong></div><input id="sfxVolume" type="range" min="0" max="1" step="0.05" value="0.62" aria-label="SFX-Lautstärke"></div>
     <div class="form-row"><div class="form-copy"><strong>Ambient-Musik</strong><span>Ein dezenter lokaler Drone, der erst nach deiner Zustimmung startet.</span></div><input id="musicToggle" type="checkbox" aria-label="Ambient-Musik"></div>
     <div class="form-row"><div class="form-copy"><strong>Musik-Lautstärke</strong></div><input id="musicVolume" type="range" min="0" max="1" step="0.05" value="0.14" aria-label="Musik-Lautstärke"></div>
+    <div class="form-row"><div class="form-copy"><strong>Ambient-Szene</strong><span>Fünf kleine, loopbare Klangräume für unterschiedliche Expeditionen.</span></div><select id="ambientTrack" aria-label="Ambient-Szene"><option value="void">Void Whispers · dunkel</option><option value="crystal">Crystal Drift · klar</option><option value="ember">Ember Pulse · warm</option><option value="forest">Forest Canopy · organisch</option><option value="aurora">Aurora Passage · weit</option></select></div>
+    <div class="form-row"><div class="form-copy"><strong>Räumliche FX</strong><span>Kurzes Echo und weicher Hall für Wände, Schritte, Schlüssel und Stürze.</span></div><input id="spaceFxToggle" type="checkbox" aria-label="Räumliche Soundeffekte"></div>
+    <div class="settings-section"><h3 class="settings-section-title">Labyrinthia online</h3><p class="settings-section-copy">Mehr vom Projekt, neue Builds und die spielbare Web-Version.</p><div class="settings-links"><a class="settings-link" href="https://kosch.cloud" target="_blank" rel="noopener noreferrer"><span class="settings-link-icon" aria-hidden="true">K</span><span class="settings-link-copy"><strong>KoSch Cloud</strong><span>Projektseite und weitere Arbeiten · kosch.cloud</span></span><span class="settings-link-arrow" aria-hidden="true">↗</span></a><a class="settings-link" href="https://maze.on.websim.com" target="_blank" rel="noopener noreferrer"><span class="settings-link-icon" aria-hidden="true">✦</span><span class="settings-link-copy"><strong>Labyrinthia im Web</strong><span>Direkt zur spielbaren Web-Version · maze.on.websim.com</span></span><span class="settings-link-arrow" aria-hidden="true">↗</span></a></div></div>
     <div class="settings-section"><h3 class="settings-section-title">Fortschritt sichern</h3><p class="settings-section-copy">Exportiere deinen lokalen Spielstand als Textcode und importiere ihn auf einem neuen Gerät.</p><textarea id="backupCode" class="backup-code" spellcheck="false" aria-label="Progressionscode"></textarea><div class="backup-actions"><button id="backupExportBtn" class="button">Code erzeugen</button><button id="backupCopyBtn" class="button">Code kopieren</button><button id="backupImportBtn" class="button">Code importieren</button></div></div>
     <div class="modal-actions"><button id="calibrateMotionBtn" class="button">Sensoren kalibrieren</button><button id="resetProgressBtn" class="button button-danger">Fortschritt löschen</button><button data-close-modal class="button button-primary">Fertig</button></div>
   </div></div>
 
-  <div id="achievementsModal" class="modal" aria-hidden="true"><div class="modal-card wide"><div class="modal-head"><div><div class="eyebrow">Long-term progression</div><h2>1.000 Achievements</h2><p id="achievementProgress">0 / 1000 freigeschaltet</p></div><button id="closeAchievementsModal" class="modal-close" aria-label="Schließen">×</button></div><div id="achievementCollections" class="achievement-summary"></div><p id="nextAchievementHint" class="next-achievement">Nächstes Ziel wird geladen …</p><div class="filter-row"><button class="filter-button is-selected" data-achievement-filter="all">Alle</button><button class="filter-button" data-achievement-filter="Levels">Levels</button><button class="filter-button" data-achievement-filter="Keys">Keys</button><button class="filter-button" data-achievement-filter="Moves">Moves</button><button class="filter-button" data-achievement-filter="Speed">Speed</button><button class="filter-button" data-achievement-filter="Motion">Motion</button></div><div id="achievementsGrid" class="achievement-grid"></div></div></div>
+  <div id="achievementsModal" class="modal" aria-hidden="true"><div class="modal-card wide"><div class="modal-head"><div><div class="eyebrow">Long-term progression</div><h2>1.000 Achievements</h2><p id="achievementProgress">0 / 1000 freigeschaltet</p></div><button id="closeAchievementsModal" class="modal-close" aria-label="Schließen">×</button></div><div id="achievementCollections" class="achievement-summary"></div><p id="nextAchievementHint" class="next-achievement">Nächstes Ziel wird geladen …</p><div class="filter-row"><button class="filter-button is-selected" data-achievement-filter="all">Alle</button><button class="filter-button" data-achievement-filter="Levels">Levels</button><button class="filter-button" data-achievement-filter="Keys">Keys</button><button class="filter-button" data-achievement-filter="Moves">Moves</button><button class="filter-button" data-achievement-filter="Speed">Speed</button><button class="filter-button" data-achievement-filter="Motion">Motion</button><button class="filter-button" data-achievement-filter="Hazards">Risiken</button></div><div id="achievementsGrid" class="achievement-grid"></div></div></div>
 
   <div id="pauseModal" class="modal" aria-hidden="true"><div class="modal-card"><div class="modal-head"><div><div class="eyebrow">Expedition paused</div><h2>Pause</h2><p>Dein Timer steht still, bis du weiterspielst.</p></div></div><div class="modal-actions"><button id="pauseMenuBtn" class="button">Hauptmenü</button><button id="resumeBtn" class="button button-primary">Weiterspielen</button></div></div></div>
 

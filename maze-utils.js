@@ -37,8 +37,17 @@ function oddAtLeast(value) {
 
 export function levelDimensions(currentLevel) {
   const level = Math.max(1, Math.floor(Number(currentLevel) || 1));
+  // The first ten levels are intentionally compact. They are the onboarding
+  // route and must remain readable enough for the early time achievements on
+  // a phone. From level 11 onward the endless curve takes over.
+  const openingSizes = [9, 11, 13, 15, 17, 19, 21, 23, 25, 27];
+  if (level <= openingSizes.length) {
+    const side = openingSizes[level - 1];
+    return { cols: side, rows: side };
+  }
+
   // Grow for a long time, then keep a safe upper bound for mobile memory.
-  const growth = 15 + Math.floor(Math.sqrt(level) * 5.2) + Math.floor(level / 12) * 2;
+  const growth = 27 + Math.floor(Math.sqrt(level - 10) * 5.2) + Math.floor((level - 10) / 12) * 2;
   const side = Math.min(181, Math.max(15, growth));
   return { cols: oddAtLeast(side), rows: oddAtLeast(side) };
 }
@@ -116,21 +125,23 @@ export function getLevelDifficulty(currentLevel) {
       holeRadius: 0
     };
   }
-  const tier = Math.min(6, 2 + Math.floor((level - 3) / 3));
+  const tier = Math.min(6, 2 + Math.floor((level - 3) / 2));
   const labels = [
-    'Falllöcher · klein',
-    'Falllöcher · verstreut',
-    'Falllöcher · Cluster',
-    'Falllöcher · große Cluster',
+    'Falllöcher · kleiner Umweg',
+    'Falllöcher · breite Passagen',
+    'Falllöcher · mehrere Umwege',
+    'Falllöcher · große Umwege',
     'Falllöcher · Prüfung'
   ];
   return {
     tier,
     label: labels[Math.min(labels.length - 1, tier - 2)],
-    description: tier <= 2 ? 'Kleine Löcher abseits der sicheren Route.' : 'Löcher wachsen und bilden gefährliche Gruppen.',
-    holeCount: Math.min(72, 3 + Math.floor(level * 1.9) + Math.floor(level / 5) * 3),
-    clusterSize: Math.min(5, 1 + Math.floor((level - 3) / 4)),
-    holeRadius: Math.min(0.43, 0.22 + Math.floor((level - 3) / 4) * 0.04)
+    description: tier <= 2
+      ? 'Kleine Löcher liegen in einer aufgeweiteten Passage mit sicherem Bypass.'
+      : 'Die Umwege werden breiter, länger und zahlreicher, bleiben aber begehbar.',
+    holeCount: Math.min(48, 1 + Math.floor((level - 3) / 2)),
+    clusterSize: 1,
+    holeRadius: Math.min(0.44, 0.17 + Math.min(0.25, (level - 3) * 0.025))
   };
 }
 
@@ -160,35 +171,87 @@ export function applyLevelHazards(maze, cols, rows, currentLevel, seed, start, k
     const j = Math.floor(random() * (i + 1));
     [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
   }
-  const selected = new Set();
-  const addHole = (cell) => {
-    const id = `${cell.x},${cell.y}`;
-    if (selected.has(id) || protectedCells.has(id)) return false;
-    selected.add(id);
+  const reserved = new Set();
+  const cellId = (cell) => `${cell.x},${cell.y}`;
+  const inside = (x, y) => x > 0 && x < cols - 1 && y > 0 && y < rows - 1;
+  const at = (x, y) => (inside(x, y) ? maze[y][x] : null);
+
+  // A hole is only accepted as the centre of a 2-by-3 or 3-by-2 open pocket.
+  // The two end cells are linked around the hole, so the player can always
+  // take the parallel lane instead of having to step onto the hazard. This is
+  // deliberately stricter than a simple "one safe neighbour" test.
+  const bypassSpecs = (cell) => {
+    const specs = [];
+    const addHorizontal = (offset) => {
+      const main = [at(cell.x - 1, cell.y), cell, at(cell.x + 1, cell.y)];
+      const bypass = [at(cell.x - 1, cell.y + offset), at(cell.x, cell.y + offset), at(cell.x + 1, cell.y + offset)];
+      const cells = [...main, ...bypass];
+      if (cells.some((tile) => !tile || tile.hazard === 'hole' || reserved.has(cellId(tile)))) return;
+      specs.push({ main, bypass, cells });
+    };
+    const addVertical = (offset) => {
+      const main = [at(cell.x, cell.y - 1), cell, at(cell.x, cell.y + 1)];
+      const bypass = [at(cell.x + offset, cell.y - 1), at(cell.x + offset, cell.y), at(cell.x + offset, cell.y + 1)];
+      const cells = [...main, ...bypass];
+      if (cells.some((tile) => !tile || tile.hazard === 'hole' || reserved.has(cellId(tile)))) return;
+      specs.push({ main, bypass, cells });
+    };
+    addHorizontal(-1);
+    addHorizontal(1);
+    addVertical(-1);
+    addVertical(1);
+    return specs.sort(() => random() - 0.5);
+  };
+
+  const carveBypass = (spec) => {
+    const connectRow = (row) => {
+      removeWalls(row[0], row[1]);
+      removeWalls(row[1], row[2]);
+    };
+    connectRow(spec.main);
+    connectRow(spec.bypass);
+    removeWalls(spec.main[0], spec.bypass[0]);
+    removeWalls(spec.main[2], spec.bypass[2]);
+    spec.cells.forEach((tile) => { tile.wideLane = true; });
+  };
+
+  const addHole = (cell, spec) => {
+    if (!spec || protectedCells.has(cellId(cell))) return false;
+    carveBypass(spec);
     cell.hazard = 'hole';
     cell.holeRadius = difficulty.holeRadius;
     holes.push(cell);
+    spec.cells.forEach((tile) => reserved.add(cellId(tile)));
+
+    // The bypass itself must be solvable without using the hole. If a future
+    // generator change breaks that guarantee, discard only this hazard.
+    const safeBypass = solveMaze(maze, spec.bypass[0], spec.bypass[2], cols, rows);
+    if (!safeBypass.length) {
+      holes.pop();
+      delete cell.hazard;
+      delete cell.holeRadius;
+      spec.cells.forEach((tile) => reserved.delete(cellId(tile)));
+      return false;
+    }
     return true;
   };
   for (const seedCell of candidates) {
     if (holes.length >= difficulty.holeCount) break;
-    if (selected.has(`${seedCell.x},${seedCell.y}`)) continue;
-    addHole(seedCell);
-    const frontier = [seedCell];
-    while (frontier.length > 0 && holes.length < difficulty.holeCount && frontier.length < difficulty.clusterSize) {
-      const current = frontier.shift();
-      const neighbors = [
-        maze[current.y - 1]?.[current.x],
-        maze[current.y]?.[current.x + 1],
-        maze[current.y + 1]?.[current.x],
-        maze[current.y]?.[current.x - 1]
-      ].filter(Boolean).sort(() => random() - 0.5);
-      for (const neighbor of neighbors) {
-        if (holes.length >= difficulty.holeCount || frontier.length >= difficulty.clusterSize) break;
-        if (Math.abs(neighbor.x - seedCell.x) + Math.abs(neighbor.y - seedCell.y) > difficulty.clusterSize) continue;
-        if (addHole(neighbor)) frontier.push(neighbor);
-      }
+    if (reserved.has(cellId(seedCell))) continue;
+    const specs = bypassSpecs(seedCell);
+    for (const spec of specs) {
+      if (addHole(seedCell, spec)) break;
     }
+  }
+  // The protected route is the final authority: if a future maze change ever
+  // weakens the local checks above, remove the complete hazard set rather than
+  // shipping an unwinnable level.
+  if (!solveMaze(maze, start, key, cols, rows).length || !solveMaze(maze, key, exit, cols, rows).length) {
+    holes.forEach((cell) => {
+      delete cell.hazard;
+      delete cell.holeRadius;
+    });
+    holes.length = 0;
   }
   return { difficulty, holes };
 }

@@ -1,5 +1,8 @@
 import { CONFIG } from './config.js';
 
+const gravity = 9.81;
+const clockNow = () => (typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now());
+
 export class MotionPhysics {
   constructor() {
     this.friction = CONFIG.physics.friction;
@@ -12,7 +15,7 @@ export class MotionPhysics {
     this.velocity = { x: 0, y: 0 };
     this.calibration = { x: 0, y: 0, z: 0 };
     this.calibrated = false;
-    this.lastUpdate = typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now();
+    this.lastUpdate = clockNow();
     this.orientation = this.readOrientation();
 
     if (typeof window !== 'undefined') {
@@ -25,11 +28,12 @@ export class MotionPhysics {
 
   readOrientation() {
     if (typeof window === 'undefined') return 0;
-    return Number(window.screen?.orientation?.angle ?? window.orientation ?? 0) || 0;
+    const raw = Number(window.screen?.orientation?.angle ?? window.orientation ?? 0) || 0;
+    return ((Math.round(raw / 90) * 90) % 360 + 360) % 360;
   }
 
   setSensitivity(value) {
-    this.tiltSensitivity = Math.min(5, Math.max(0.5, Number(value) || CONFIG.physics.tiltSensitivity));
+    this.tiltSensitivity = Math.min(2.5, Math.max(0.5, Number(value) || CONFIG.physics.tiltSensitivity));
   }
 
   setInvert(value) {
@@ -39,31 +43,62 @@ export class MotionPhysics {
   calibrate(x, y, z) {
     this.calibration = { x: Number(x) || 0, y: Number(y) || 0, z: Number(z) || 0 };
     this.calibrated = true;
-    this.velocity = { x: 0, y: 0 };
+    this.resetVelocity();
+  }
+
+  state() {
+    const speed = Math.hypot(this.velocity.x, this.velocity.y);
+    const isRolling = speed > this.movementThreshold;
+    const direction = Math.abs(this.velocity.x) >= Math.abs(this.velocity.y)
+      ? { x: Math.sign(this.velocity.x), y: 0 }
+      : { x: 0, y: Math.sign(this.velocity.y) };
+    return {
+      ...direction,
+      isRolling,
+      intensity: Math.min(speed / this.maxVelocity, 1),
+      speed,
+      velocityX: this.velocity.x,
+      velocityY: this.velocity.y,
+      calibrated: this.calibrated
+    };
+  }
+
+  applyFriction(deltaTime) {
+    const friction = Math.pow(this.friction, Math.max(0, deltaTime) * 60);
+    this.velocity.x *= friction;
+    this.velocity.y *= friction;
+    const speed = Math.hypot(this.velocity.x, this.velocity.y);
+    if (speed > this.maxVelocity) {
+      const factor = this.maxVelocity / speed;
+      this.velocity.x *= factor;
+      this.velocity.y *= factor;
+    }
   }
 
   update(accelerationX, accelerationY, accelerationZ) {
-    const now = typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now();
-    const deltaTime = Math.min(0.08, Math.max(0.008, (now - this.lastUpdate) / 1000));
-    this.lastUpdate = now;
+    const current = clockNow();
+    const deltaTime = Math.min(0.08, Math.max(0.008, (current - this.lastUpdate) / 1000));
+    this.lastUpdate = current;
 
     const x = Number(accelerationX) || 0;
     const y = Number(accelerationY) || 0;
     const z = Number(accelerationZ) || 0;
     if (!this.calibrated) {
       this.calibrate(x, y, z);
-      return { x: 0, y: 0, isRolling: false, intensity: 0 };
+      return this.state();
     }
 
-    // Android's accelerometer reports m/s². Normalizing by gravity makes the
-    // response consistent between native Android and browser sensor streams.
-    let relativeX = ((x - this.calibration.x) / 9.81) * this.tiltSensitivity;
-    let relativeY = ((y - this.calibration.y) / 9.81) * this.tiltSensitivity;
+    // Android reports gravity in m/s². Removing the calibrated flat-board
+    // vector leaves a tilt signal; its magnitude directly adds acceleration.
+    let relativeX = ((x - this.calibration.x) / gravity) * this.tiltSensitivity;
+    let relativeY = ((y - this.calibration.y) / gravity) * this.tiltSensitivity;
+    relativeX = Math.max(-1, Math.min(1, relativeX));
+    relativeY = Math.max(-1, Math.min(1, relativeY));
     if (Math.abs(relativeX) < this.deadzone) relativeX = 0;
     if (Math.abs(relativeY) < this.deadzone) relativeY = 0;
 
     relativeX = -relativeX;
-    const orientation = ((this.orientation % 360) + 360) % 360;
+    const orientation = this.orientation;
     if (orientation === 90) {
       [relativeX, relativeY] = [-relativeY, relativeX];
     } else if (orientation === 270) {
@@ -79,35 +114,42 @@ export class MotionPhysics {
 
     this.velocity.x += relativeX * this.acceleration * deltaTime;
     this.velocity.y += relativeY * this.acceleration * deltaTime;
-    const friction = Math.pow(this.friction, deltaTime * 60);
-    this.velocity.x *= friction;
-    this.velocity.y *= friction;
-
+    // Friction is applied once per rendered frame in advance(). Keeping it
+    // there prevents fast sensor streams from damping the ball twice.
     const speed = Math.hypot(this.velocity.x, this.velocity.y);
     if (speed > this.maxVelocity) {
       const factor = this.maxVelocity / speed;
       this.velocity.x *= factor;
       this.velocity.y *= factor;
     }
+    return this.state();
+  }
 
-    const isRolling = speed > this.movementThreshold;
-    if (!isRolling) return { x: 0, y: 0, isRolling: false, intensity: 0 };
-    const direction = Math.abs(this.velocity.x) >= Math.abs(this.velocity.y)
-      ? { x: Math.sign(this.velocity.x), y: 0 }
-      : { x: 0, y: Math.sign(this.velocity.y) };
-    return { ...direction, isRolling: true, intensity: Math.min(speed / this.maxVelocity, 1) };
+  advance(deltaSeconds) {
+    if (!this.calibrated) return this.state();
+    this.applyFriction(Math.min(0.08, Math.max(0, Number(deltaSeconds) || 0)));
+    return this.state();
+  }
+
+  resetVelocity() {
+    this.velocity = { x: 0, y: 0 };
+    this.lastUpdate = clockNow();
   }
 
   reset() {
-    this.velocity = { x: 0, y: 0 };
+    this.resetVelocity();
     this.calibrated = false;
-    this.lastUpdate = typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now();
+    this.calibration = { x: 0, y: 0, z: 0 };
   }
 
-  hitWall() {
-    // A board rolls into a wall and loses its momentum, rather than continuing
-    // to request the same move at full speed.
-    this.velocity.x *= 0.22;
-    this.velocity.y *= 0.22;
+  hitWall(axis) {
+    // A real board loses most energy at a wall. A tiny reverse impulse keeps
+    // the contact from feeling sticky without making the ball bounce away.
+    if (axis === 'x') this.velocity.x *= -0.08;
+    else if (axis === 'y') this.velocity.y *= -0.08;
+    else {
+      this.velocity.x *= 0.22;
+      this.velocity.y *= 0.22;
+    }
   }
 }
