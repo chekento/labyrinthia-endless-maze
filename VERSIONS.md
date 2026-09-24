@@ -6,7 +6,7 @@ Dieses Archiv hält die installierbaren Android-Teststände und ihre Prüfsummen
 
 | Version | VersionCode | APK | SHA-256 |
 | --- | ---: | --- | --- |
-| **2.4.3** · aktuelle Version | 29 | [Labyrinthia-v2.4.3-debug.apk](./downloads/Labyrinthia-v2.4.3-debug.apk) | `fb4d594c22147d1a1e4b95d93aeff7c73987a1cbf33afe85cc7df80a9380597c` |
+| **2.4.3** · aktuelle Version | 29 | [Labyrinthia-v2.4.3-debug.apk](./downloads/Labyrinthia-v2.4.3-debug.apk) | `59561c106d757e903eb40d21a7be7a65addf6bbfa2546f7cd27ff8c0cedc9b52` |
 | 2.4.2 · Project links predecessor | 28 | [Labyrinthia-v2.4.2-debug.apk](./downloads/Labyrinthia-v2.4.2-debug.apk) | `123215e88c18b51a1650dd3e8b63b81923eb6e5b4a205656fbed8250a66ee7bd` |
 | 2.4.1 · Welcome art | 27 | [Labyrinthia-v2.4.1-debug.apk](./downloads/Labyrinthia-v2.4.1-debug.apk) | `9c2003ffbd51f80f7f4aa167ce18d5ef9159e49605f55e4b7df9f75f7bed43d6` |
 | 2.4.0 · Rolling physics | 26 | [Labyrinthia-v2.4.0-debug.apk](./downloads/Labyrinthia-v2.4.0-debug.apk) | `7f68c2b6000e96c24ccda7703025b86d7a42fb2b57c7db5b2d0f27da6fea6b57` |

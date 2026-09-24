@@ -12,7 +12,7 @@
 
 - APK package: `cloud.kosch.labyrinthia`
 - Version: `2.4.3` / `versionCode 29`
-- SHA-256: `fb4d594c22147d1a1e4b95d93aeff7c73987a1cbf33afe85cc7df80a9380597c`
+- SHA-256: `59561c106d757e903eb40d21a7be7a65addf6bbfa2546f7cd27ff8c0cedc9b52`
 
 ## v2.4.2 · Fair wide-lane hazards and compact onboarding levels · 2026-09-24
 

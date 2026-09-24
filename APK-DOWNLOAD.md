@@ -17,8 +17,8 @@ The repository contains the Android Studio project, the complete offline web gam
 - Package: `cloud.kosch.labyrinthia`
 - Version: `2.4.3` (`versionCode 29`)
 - Minimum Android version: Android 6.0 / API 23
-- File size: `11,568,607` bytes (about 11.0 MiB)
-- SHA-256: `fb4d594c22147d1a1e4b95d93aeff7c73987a1cbf33afe85cc7df80a9380597c`
+- File size: `4,275,148` bytes (about 4.1 MiB)
+- SHA-256: `59561c106d757e903eb40d21a7be7a65addf6bbfa2546f7cd27ff8c0cedc9b52`
 
 ## Weitere Repository-Seiten
 

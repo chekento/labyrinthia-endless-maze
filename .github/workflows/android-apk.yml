@@ -36,7 +36,7 @@ jobs:
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: labyrinthia-v2.2.1-debug-apk
+          name: labyrinthia-v2.4.3-debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
 
