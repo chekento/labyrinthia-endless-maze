@@ -24,7 +24,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          VERSION=$(sed -n 's/.*versionName = "\\([^"]*\\)".*/\\1/p' android/app/build.gradle.kts | head -1)
+          VERSION=$(grep -m1 'versionName = "' android/app/build.gradle.kts | sed -E 's/.*versionName = "([^"]+)".*/\1/')
           test -n "$VERSION"
           APK="downloads/Labyrinthia-v${VERSION}-debug.apk"
           test -f "$APK"
