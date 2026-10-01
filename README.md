@@ -8,6 +8,7 @@
 [![Status: Pre-Alpha](https://img.shields.io/badge/status-pre--alpha-ff6b8a?style=for-the-badge)](#-development-status)
 [![Android Ready](https://img.shields.io/badge/android-ready-36e0c5?style=for-the-badge&logo=android&logoColor=071018)](#-android-build)
 [![Progression](https://img.shields.io/badge/progression-1000%20ranks%20%2B%201000%20achievements-7c6cff?style=for-the-badge)](#-long-term-motivation)
+[![Privacy](https://img.shields.io/badge/privacy-AI-third--party-2ea44f?style=for-the-badge)](PRIVACY.md)
 
 <img src="./labyrinthia-keyart.svg" alt="Labyrinthia key art" width="760" />
 
